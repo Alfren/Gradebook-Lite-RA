@@ -11,30 +11,30 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import CloseButton from "./CloseButton";
-import {
-  useCreateStudentMutation,
-  useDeleteStudentMutation,
-} from "../store/rtk";
 import { Add, Delete } from "@mui/icons-material";
+import {
+  useCreateAssignmentMutation,
+  useDeleteAssignmentMutation,
+} from "../store/rtk";
 import ConfirmDialog from "./ConfirmDialog";
-export default function StudentsModal({ students, open, toggle }) {
-  const [postStudent] = useCreateStudentMutation();
-  const [deleteStudent] = useDeleteStudentMutation();
-  const [name, setName] = useState("");
+import CloseButton from "./CloseButton";
+
+export default function AssignmentModal({ assignments, open, toggle }) {
+  const [postAssignment] = useCreateAssignmentMutation();
+  const [deleteAssignment] = useDeleteAssignmentMutation();
+  const [assignment, setAssignment] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmData, setConfirmData] = useState({});
 
-  const createStudent = () => {
-    postStudent(name)
+  const createAssignment = () => {
+    postAssignment(assignment)
       .then((resp) => {
-        setName("");
+        setAssignment("");
       })
       .catch((error) => {
         console.error(error);
       });
   };
-
   return (
     <Dialog open={open} onClose={toggle}>
       <ConfirmDialog
@@ -44,40 +44,28 @@ export default function StudentsModal({ students, open, toggle }) {
       />
       <CloseButton action={toggle} />
       <Stack spacing={2} m={2}>
-        <Typography variant="h5" align="center" px={6}>
-          STUDENTS
+        <Typography variant="h5" px={4} align="center">
+          ASSIGNMENTS
         </Typography>
         <List>
-          {students.map(({ id, name, grades }, i) => {
-            const gradeList = grades ? Object.values(grades) : [];
-            const total =
-              gradeList.length > 0
-                ? gradeList.reduce(
-                    (sum, { value }) => (sum.value || sum) + value
-                  ) / gradeList.length
-                : 0;
-            return (
+          {assignments.length > 0 &&
+            assignments.map(({ title, id }, i) => (
               <ListItem key={id}>
                 <ListItemAvatar sx={{ minWidth: "unset" }}>
                   <Typography color="text.secondary" component="span" pr={1}>
                     {i + 1}.
                   </Typography>
                 </ListItemAvatar>
-                <ListItemText flex={1}>
-                  {name}
-                  <Typography variant="caption" pl={2}>
-                    ({total.toFixed(2)})
-                  </Typography>
-                </ListItemText>
+                <ListItemText flex={1}>{title}</ListItemText>
                 <IconButton
                   color="error"
                   onClick={() => {
                     setConfirmData({
-                      title: "Remove student",
-                      description: `Delete ${name} records?`,
+                      title: "Remove assignment",
+                      description: `Delete ${title}?`,
                       actions: [
                         {
-                          action: () => deleteStudent(id),
+                          action: () => deleteAssignment(id),
                           color: "error",
                           label: "DELETE",
                         },
@@ -89,22 +77,22 @@ export default function StudentsModal({ students, open, toggle }) {
                   <Delete />
                 </IconButton>
               </ListItem>
-            );
-          })}
+            ))}
         </List>
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" columnGap={1}>
           <TextField
-            size="small"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            label="New Student"
-            placeholder="Student Name"
+            value={assignment}
+            onChange={(e) => setAssignment(e.target.value)}
+            label="New Assignment"
+            placeholder="Assignment name"
+            fullWidth
             autoComplete="off"
           />
           <Button
-            onClick={createStudent}
             variant="contained"
-            disabled={name === ""}
+            color="success"
+            onClick={createAssignment}
+            disabled={assignment === ""}
           >
             <Add />
           </Button>

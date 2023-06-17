@@ -43,12 +43,12 @@
       }
     },
     {
-      "name": "123",
+      "name": "test",
       "grades": {},
       "id": 3
     }
   ],
-  "grades": [
+  "assignments": [
     {
       "id": 1,
       "title": "Test 1"
@@ -62,16 +62,16 @@
       "title": "Test 3"
     },
     {
-      "id": 4,
-      "title": "Reading Assignment"
-    },
-    {
       "id": 5,
       "title": "Speech 1"
     },
     {
-      "id": 6,
-      "title": "Speech 2"
+      "title": "test",
+      "id": 6
+    },
+    {
+      "title": "test",
+      "id": 7
     }
   ]
 }

@@ -12,10 +12,11 @@ import {
   TableRow,
   Tooltip,
 } from "@mui/material";
-import { useGetGradesQuery, useGetStudentsQuery } from "../store/rtk";
-import { Groups, Refresh, Settings } from "@mui/icons-material";
+import { useGetAssignmentsQuery, useGetStudentsQuery } from "../store/rtk";
+import { Description, Groups, Refresh } from "@mui/icons-material";
 import StudentsModal from "../components/StudentsModal";
 import { useSnackbar } from "notistack";
+import AssignmentModal from "../components/AssignmentModal";
 
 export default function Home() {
   const { closeSnackbar: msg } = useSnackbar();
@@ -24,26 +25,34 @@ export default function Home() {
     refetch: refetchStudents,
     isFetching: studentsFetching,
   } = useGetStudentsQuery();
+
   const {
-    data: grades = [],
-    refetch: refetchGrades,
-    isFetching: gradesFetching,
-  } = useGetGradesQuery();
+    data: assignments = [],
+    refetch: refetchAssignments,
+    isFetching: assignmentsFetching,
+  } = useGetAssignmentsQuery();
+
   const refetchData = () => {
     refetchStudents();
-    refetchGrades();
+    refetchAssignments();
     msg("It worked. Data refreshed.", { variant: "success" });
   };
   const [studentModal, setStudentModal] = useState(false);
   const [assignmentModal, setAssignmentModal] = useState(false);
   const toggleStudentModal = () => setStudentModal(!studentModal);
   const toggleAssignmentModal = () => setAssignmentModal(!assignmentModal);
+
   return (
     <Container component={Paper} sx={{ p: 2 }}>
       <StudentsModal
         students={students}
         open={studentModal}
         toggle={toggleStudentModal}
+      />
+      <AssignmentModal
+        assignments={assignments}
+        open={assignmentModal}
+        toggle={toggleAssignmentModal}
       />
       <Stack direction="row-reverse" columnGap={1}>
         <Button
@@ -55,15 +64,21 @@ export default function Home() {
         </Button>
         <Button
           variant="outlined"
-          endIcon={<Settings />}
+          endIcon={<Description />}
           onClick={toggleAssignmentModal}
         >
           Assignments
         </Button>
         <Tooltip title="Refetch data" arrow disableInteractive>
-          <IconButton onClick={refetchData} color="primary">
-            <Refresh />
-          </IconButton>
+          <span>
+            <IconButton
+              onClick={refetchData}
+              color="primary"
+              disabled={studentsFetching || assignmentsFetching}
+            >
+              <Refresh />
+            </IconButton>
+          </span>
         </Tooltip>
       </Stack>
       <Table>
@@ -72,8 +87,8 @@ export default function Home() {
             <TableCell role="heading" sx={{ fontWeight: 900 }}>
               Student
             </TableCell>
-            {grades.length > 0 &&
-              grades.map((entry) => (
+            {assignments.length > 0 &&
+              assignments.map((entry) => (
                 <TableCell
                   key={`assignment-${entry.id}`}
                   sx={{ fontWeight: 900, textAlign: "center" }}
@@ -90,38 +105,14 @@ export default function Home() {
                 <TableRow key={id}>
                   <TableCell sx={{ fontWeight: 900 }}>{name}</TableCell>
                   {studentGrades !== undefined &&
-                    grades.length > 0 &&
-                    grades.map(({ id: gradeId }) => (
+                    assignments.length > 0 &&
+                    assignments.map(({ id: gradeId }) => (
                       <TableCell key={gradeId} align="center">
                         {studentGrades?.[gradeId]?.value || "-"}
                       </TableCell>
                     ))}
                 </TableRow>
               );
-              // return [
-              //   <Stack
-              //     key={`stack-${entry.id}`}
-              //     direction="row"
-              //     columnGap={3}
-              //     alignItems="center"
-              //   >
-              //     <Typography variant="body1" sx={{ whiteSpace: "nowrap" }}>
-              //       {entry.name}
-              //     </Typography>
-              //     <Divider orientation="vertical" flexItem />
-              //     <Grid container columnGap={3}>
-              //       {studentGrades.map((item) => (
-              //         <Grid item key={item.id} align="center">
-              //           <Typography variant="caption" color="text.secondary">
-              //             {item.title}
-              //           </Typography>
-              //           <Typography>{item.grade}</Typography>
-              //         </Grid>
-              //       ))}
-              //     </Grid>
-              //   </Stack>,
-              //   <Divider key={`divider-${entry.id}`} />,
-              // ];
             })}
         </TableBody>
       </Table>
