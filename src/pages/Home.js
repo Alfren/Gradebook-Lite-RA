@@ -1,56 +1,119 @@
+import { useState } from "react";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Grid,
+  Button,
+  Container,
+  IconButton,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
 } from "@mui/material";
 import { useGetGradesQuery, useGetStudentsQuery } from "../store/rtk";
+import { Groups, Refresh, Settings } from "@mui/icons-material";
+import StudentsModal from "../components/StudentsModal";
 
 export default function Home() {
-  const { data: students = [] } = useGetStudentsQuery();
-  const { data: grades = [] } = useGetGradesQuery();
+  const { data: students = [], refetch: refetchStudents } =
+    useGetStudentsQuery();
+  const { data: grades = [], refetch: refetchGrades } = useGetGradesQuery();
+  const refetchData = () => {
+    refetchStudents();
+    refetchGrades();
+  };
+  const [studentModal, setStudentModal] = useState(false);
+  const [assignmentModal, setAssignmentModal] = useState(false);
+  const toggleStudentModal = () => setStudentModal(!studentModal);
+  const toggleAssignmentModal = () => setAssignmentModal(!assignmentModal);
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell>ID</TableCell>
-          <TableCell>Student</TableCell>
-          <TableCell sx={{ flex: 1 }}>Grades</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {students.map((entry) => {
-          const studentGrades = grades.filter(
-            ({ studentId }) => studentId === entry.id
-          );
-          return [
-            <TableRow key={`primary-${entry.id}`}>
-              <TableCell>{entry.id}</TableCell>
-            </TableRow>,
-            <TableRow key={`secondary-${entry.id}`}>
-              <TableCell colSpan={3}>
-                <Accordion>
-                  <AccordionSummary>-</AccordionSummary>
-                  <AccordionDetails>
-                    <Grid container>
-                      {studentGrades.map((item) => (
-                        <Grid item key={item.id}>
-                          {item.title}: {item.grade}
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </AccordionDetails>
-                </Accordion>
-              </TableCell>
-            </TableRow>,
-          ];
-        })}
-      </TableBody>
-    </Table>
+    <Container component={Paper} sx={{ p: 2 }}>
+      <StudentsModal
+        students={students}
+        open={studentModal}
+        toggle={toggleStudentModal}
+      />
+      <Stack direction="row-reverse" columnGap={1}>
+        <Button
+          variant="outlined"
+          endIcon={<Groups />}
+          onClick={toggleStudentModal}
+        >
+          Students
+        </Button>
+        <Button
+          variant="outlined"
+          endIcon={<Settings />}
+          onClick={toggleAssignmentModal}
+        >
+          Assignments
+        </Button>
+        <Tooltip title="Refetch data" arrow disableInteractive>
+          <IconButton onClick={refetchData} color="primary">
+            <Refresh />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell role="heading" sx={{ fontWeight: 900 }}>
+              Student
+            </TableCell>
+            {grades.length > 0 &&
+              grades.map((entry) => (
+                <TableCell
+                  key={`assignment-${entry.id}`}
+                  sx={{ fontWeight: 900, textAlign: "center" }}
+                >
+                  {entry.title}
+                </TableCell>
+              ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {students.length > 0 &&
+            students.map(({ id, name, grades: studentGrades }) => {
+              return (
+                <TableRow key={id}>
+                  <TableCell sx={{ fontWeight: 900 }}>{name}</TableCell>
+                  {grades.length > 0 &&
+                    grades.map(({ id: gradeId }) => (
+                      <TableCell key={gradeId} align="center">
+                        {studentGrades?.[gradeId]?.value || "-"}
+                      </TableCell>
+                    ))}
+                </TableRow>
+              );
+              // return [
+              //   <Stack
+              //     key={`stack-${entry.id}`}
+              //     direction="row"
+              //     columnGap={3}
+              //     alignItems="center"
+              //   >
+              //     <Typography variant="body1" sx={{ whiteSpace: "nowrap" }}>
+              //       {entry.name}
+              //     </Typography>
+              //     <Divider orientation="vertical" flexItem />
+              //     <Grid container columnGap={3}>
+              //       {studentGrades.map((item) => (
+              //         <Grid item key={item.id} align="center">
+              //           <Typography variant="caption" color="text.secondary">
+              //             {item.title}
+              //           </Typography>
+              //           <Typography>{item.grade}</Typography>
+              //         </Grid>
+              //       ))}
+              //     </Grid>
+              //   </Stack>,
+              //   <Divider key={`divider-${entry.id}`} />,
+              // ];
+            })}
+        </TableBody>
+      </Table>
+    </Container>
   );
 }

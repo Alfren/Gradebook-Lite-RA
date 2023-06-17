@@ -8,6 +8,13 @@ export const api = createApi({
     getStudents: builder.query({
       query: () => `/students`,
     }),
+    createStudent: builder.mutation({
+      query: (name) => ({
+        url: `/students`,
+        method: "POST",
+        body: { name },
+      }),
+    }),
     // ------- GRADES ------//
     getGrades: builder.query({
       query: () => `/grades`,
@@ -17,4 +24,8 @@ export const api = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetStudentsQuery, useGetGradesQuery } = api;
+export const {
+  useGetStudentsQuery,
+  useCreateStudentMutation,
+  useGetGradesQuery,
+} = api;

@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "react-router";
-import { Button, IconButton, Stack, Typography } from "@mui/material";
+import { Button, IconButton, Paper, Stack, Typography } from "@mui/material";
 import { Brightness6 } from "@mui/icons-material";
 import AR_Flag from "../images/AR-flag.svg";
 
@@ -13,7 +13,7 @@ export default function TitleBar({ toggleTheme, mode }) {
         spacing={2}
         p={1}
         mb={3}
-        sx={{ background: mode ? "#222" : "" }}
+        component={Paper}
       >
         <Typography variant="h5">
           Gradebook Lite{" "}
