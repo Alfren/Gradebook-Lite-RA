@@ -15,14 +15,24 @@ import {
 import { useGetGradesQuery, useGetStudentsQuery } from "../store/rtk";
 import { Groups, Refresh, Settings } from "@mui/icons-material";
 import StudentsModal from "../components/StudentsModal";
+import { useSnackbar } from "notistack";
 
 export default function Home() {
-  const { data: students = [], refetch: refetchStudents } =
-    useGetStudentsQuery();
-  const { data: grades = [], refetch: refetchGrades } = useGetGradesQuery();
+  const { closeSnackbar: msg } = useSnackbar();
+  const {
+    data: students = [],
+    refetch: refetchStudents,
+    isFetching: studentsFetching,
+  } = useGetStudentsQuery();
+  const {
+    data: grades = [],
+    refetch: refetchGrades,
+    isFetching: gradesFetching,
+  } = useGetGradesQuery();
   const refetchData = () => {
     refetchStudents();
     refetchGrades();
+    msg("It worked. Data refreshed.", { variant: "success" });
   };
   const [studentModal, setStudentModal] = useState(false);
   const [assignmentModal, setAssignmentModal] = useState(false);
@@ -79,7 +89,8 @@ export default function Home() {
               return (
                 <TableRow key={id}>
                   <TableCell sx={{ fontWeight: 900 }}>{name}</TableCell>
-                  {grades.length > 0 &&
+                  {studentGrades !== undefined &&
+                    grades.length > 0 &&
                     grades.map(({ id: gradeId }) => (
                       <TableCell key={gradeId} align="center">
                         {studentGrades?.[gradeId]?.value || "-"}

@@ -7,17 +7,20 @@ export const api = createApi({
     // ------- STUDENTS ------//
     getStudents: builder.query({
       query: () => `/students`,
+      providesTags: ["students"],
     }),
     createStudent: builder.mutation({
       query: (name) => ({
         url: `/students`,
         method: "POST",
-        body: { name },
+        body: { name, grades: {} },
       }),
+      invalidatesTags: ["students"],
     }),
     // ------- GRADES ------//
     getGrades: builder.query({
       query: () => `/grades`,
+      providesTags: ["grades"],
     }),
   }),
 });
