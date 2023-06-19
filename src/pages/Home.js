@@ -12,13 +12,7 @@ import {
   useGetStudentsQuery,
   useUpdateStudentMutation,
 } from "../store/rtk";
-import {
-  Description,
-  OpenInNew,
-  Groups,
-  Refresh,
-  East,
-} from "@mui/icons-material";
+import { Description, Groups, Refresh, East } from "@mui/icons-material";
 import StudentsModal from "../components/StudentsModal";
 import { useSnackbar } from "notistack";
 import AssignmentModal from "../components/AssignmentModal";
@@ -57,7 +51,9 @@ export default function Home() {
   const dataRows = students.map((entry) => {
     let temp = { ...entry };
     Object.entries(entry.grades).forEach(([key, val]) => {
-      const assign = assignments.find(({ id }) => key == id);
+      const assign = assignments.find(
+        ({ id }) => key.toString() === id.toString()
+      );
       temp[assign?.title] = val;
     });
     return temp;
@@ -90,7 +86,7 @@ export default function Home() {
             }
           }
         });
-        return total.toFixed(2);
+        return (total / assignments.length).toFixed(2);
       },
     },
     {

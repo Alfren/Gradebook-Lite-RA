@@ -23,7 +23,7 @@ export default function StudentGradeDrawer({
   const [grades, setGrades] = useState({});
 
   useEffect(() => {
-    if (open && Object.keys(grades).length === 0) {
+    if (open) {
       setGrades({ ...row.grades });
     }
   }, [open, row.grades]);
