@@ -49,12 +49,13 @@ export default function StudentsModal({ students, open, toggle }) {
         </Typography>
         <List>
           {students.map(({ id, name, grades }, i) => {
-            const gradeList = grades ? Object.values(grades) : [];
+            let list = [];
+            Object.values(JSON.parse(JSON.stringify(grades))).forEach((val) => {
+              typeof val === "object" ? list.push(val.TOTAL) : list.push(val);
+            });
             const total =
-              gradeList.length > 0
-                ? gradeList.reduce(
-                    (sum, { value }) => (sum.value || sum) + value
-                  ) / gradeList.length
+              list.length > 0
+                ? list.reduce((sum, value) => sum + value) / list.length
                 : 0;
             return (
               <ListItem key={id}>

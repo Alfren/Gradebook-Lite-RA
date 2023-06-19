@@ -5,73 +5,46 @@
       "name": "John Doe",
       "grades": {
         "1": {
-          "value": 6
+          "Written": 7,
+          "Oral": 4,
+          "Grammar": 5,
+          "TOTAL": 5.333333333333333
         },
-        "2": {
-          "value": 5
-        },
-        "3": {
-          "value": 6
-        },
-        "4": {
-          "value": 6
-        },
-        "5": {
-          "value": 6
-        },
-        "6": {
-          "value": 6
-        }
+        "2": 6,
+        "3": 8
       }
     },
     {
       "id": 2,
       "name": "Jane Doe",
-      "grades": {
-        "1": {
-          "value": 6
-        },
-        "2": {
-          "value": 5
-        },
-        "3": {
-          "value": 6
-        },
-        "4": {
-          "value": 6
-        }
-      }
+      "grades": {}
     },
     {
+      "id": 3,
       "name": "test",
-      "grades": {},
-      "id": 3
+      "grades": {}
     }
   ],
   "assignments": [
     {
       "id": 1,
-      "title": "Test 1"
+      "title": "Test 1",
+      "type": "Multiple",
+      "parts": [
+        "Written",
+        "Oral",
+        "Grammar"
+      ]
     },
     {
-      "id": 2,
-      "title": "Test 2"
+      "title": "Project 1",
+      "type": "Single",
+      "id": 2
     },
     {
-      "id": 3,
-      "title": "Test 3"
-    },
-    {
-      "id": 5,
-      "title": "Speech 1"
-    },
-    {
-      "title": "test",
-      "id": 6
-    },
-    {
-      "title": "test",
-      "id": 7
+      "title": "Essay",
+      "type": "Single",
+      "id": 3
     }
   ]
 }

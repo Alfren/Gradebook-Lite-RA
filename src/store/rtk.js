@@ -17,6 +17,14 @@ export const api = createApi({
       }),
       invalidatesTags: ["students"],
     }),
+    updateStudent: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/students/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["students"],
+    }),
     deleteStudent: builder.mutation({
       query: (id) => ({
         url: `/students/${id}`,
@@ -30,10 +38,10 @@ export const api = createApi({
       providesTags: ["assignments"],
     }),
     createAssignment: builder.mutation({
-      query: (title) => ({
+      query: (body) => ({
         url: `/assignments`,
         method: "POST",
-        body: { title },
+        body: body,
       }),
       invalidatesTags: ["assignments"],
     }),
@@ -52,6 +60,7 @@ export const api = createApi({
 export const {
   useGetStudentsQuery,
   useCreateStudentMutation,
+  useUpdateStudentMutation,
   useDeleteStudentMutation,
   useGetAssignmentsQuery,
   useCreateAssignmentMutation,
