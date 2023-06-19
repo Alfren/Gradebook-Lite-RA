@@ -14,7 +14,7 @@ import { store } from "./store/store";
 import { IconButton } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import TitleBar from "./components/TitleBar";
-import { Home, Login, Error } from "./pages/index";
+import { Home, Error } from "./pages/index";
 
 export default function App() {
   function SnackbarCloseButton({ snackbarKey }) {
@@ -32,10 +32,10 @@ export default function App() {
     {
       element: <TitleBar toggleTheme={toggleTheme} mode={mode} />,
       children: [
-        {
-          path: "/login",
-          element: <Login />,
-        },
+        // {
+        //   path: "/login",
+        //   element: <Login />,
+        // },
         {
           path: "/",
           element: <Home />,

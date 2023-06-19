@@ -1,10 +1,10 @@
-import { Outlet, useNavigate } from "react-router";
-import { Button, IconButton, Paper, Stack, Typography } from "@mui/material";
+import { Outlet } from "react-router";
+import { IconButton, Paper, Stack, Typography } from "@mui/material";
 import { Brightness6 } from "@mui/icons-material";
 import AR_Flag from "../images/AR-flag.svg";
 
 export default function TitleBar({ toggleTheme, mode }) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   return (
     <>
       <Stack
@@ -26,11 +26,11 @@ export default function TitleBar({ toggleTheme, mode }) {
           />
         </Typography>
         <Stack direction="row" spacing={2}>
-          <Button onClick={() => navigate("/")}>Home</Button>
+          {/* <Button onClick={() => navigate("/")}>Home</Button> */}
           <IconButton onClick={toggleTheme}>
             <Brightness6 />
           </IconButton>
-          <Button onClick={() => navigate("/login")}>Login</Button>
+          {/* <Button onClick={() => navigate("/login")}>Login</Button> */}
         </Stack>
       </Stack>
       <Outlet />

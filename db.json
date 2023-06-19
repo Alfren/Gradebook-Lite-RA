@@ -5,14 +5,22 @@
       "name": "John Doe",
       "grades": {
         "1": {
-          "Written": 7,
-          "Oral": 4,
-          "Grammar": 5,
-          "TOTAL": 5.333333333333333
+          "Written": 5,
+          "Oral": 9,
+          "Grammar": 7,
+          "TOTAL": 5.020833333333333
         },
-        "2": 6,
-        "3": 8
-      }
+        "2": 8,
+        "3": 7
+      },
+      "Test 1": {
+        "Written": -2,
+        "Oral": -2,
+        "Grammar": -2,
+        "TOTAL": -0.9166666666666667
+      },
+      "Project 1": -5,
+      "Essay": 3
     },
     {
       "id": 2,
