@@ -1,41 +1,18 @@
-version: "3.5"
-
-# Network for app
-networks:
-  gradebook-frontend:
-    driver: bridge
-  gradebook-backend:
-    driver: bridge
+version: "3"
 
 services:
-  api:
-    container_name: api
-    image: 631711754014.dkr.ecr.us-gov-west-1.amazonaws.com/lost-horizon/api:latest
-    networks:
-      - gradebook-backend
-    restart: unless-stopped
-    mem_limit: 1024m
-    ports:
-      - 4000:4000
-
   client:
-    container_name: client
-    image: 631711754014.dkr.ecr.us-gov-west-1.amazonaws.com/lost-horizon/client:latest
-    environment:
-      - CHOKIDAR_USEPOLLING="true"
-      - REACT_APP_VERSION=1.0.0
-      - REACT_APP_NAME=gradebook
-      - REACT_APP_API_URL=https://losthorizon.devilops.dso.mil/api
+    build:
+      context: .
+      dockerfile: Dockerfile.react
+    ports:
+      - 80:80
     depends_on:
       - api
-    networks:
-      - gradebook-frontend
-      - gradebook-backend
-    stdin_open: true
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
     ports:
-      - 3000:80
-      # - 443:80
-    restart: unless-stopped
-    mem_limit: 1024m
-    links:
-      - api
+      - 4000:4000

@@ -1,0 +1,22 @@
+
+FROM node:18
+
+WORKDIR /API
+
+# Copy package.json and package-lock.json for the API
+COPY API/package*.json ./
+
+# Install API dependencies
+RUN npm install
+
+# Copy the API source code
+COPY API .
+
+# Expose the internal port where the API will run
+EXPOSE 4000
+
+ENV PORT=4000
+ENV DB_CONNECTION=mongodb+srv://ArgentineTeachers:bTaxYtfI5fWOO7VZ@ar.j8vmrip.mongodb.net/gradebook-ar?retryWrites=true&w=majority
+# Run the Express.js API
+# CMD [ "node", "server.js" ]
+CMD ["npm", "run", "pm2-prod"]

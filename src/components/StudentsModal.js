@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Button,
   Dialog,
@@ -34,6 +34,8 @@ export default function StudentsModal({ students, open, toggle }) {
         console.error(error);
       });
   };
+
+  const studentInputRef = useRef();
 
   return (
     <Dialog open={open} onClose={toggle}>
@@ -98,9 +100,13 @@ export default function StudentsModal({ students, open, toggle }) {
             size="small"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && name !== "") createStudent();
+            }}
             label="New Student"
             placeholder="Student Name"
             autoComplete="off"
+            inputRef={studentInputRef}
           />
           <Button
             onClick={createStudent}

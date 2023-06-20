@@ -15,6 +15,7 @@ const StudentSchema = new Schema(
   },
   {
     timestamps: true,
+    minimize: false,
     versionKey: false,
     id: true,
     toJSON: {

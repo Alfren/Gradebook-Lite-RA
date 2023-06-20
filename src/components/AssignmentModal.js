@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Button,
   Chip,
@@ -61,6 +61,14 @@ export default function AssignmentModal({ assignments, open, toggle }) {
     });
     setChipList(list);
   }, [assignments, parts]);
+
+  const partInputRef = useRef();
+
+  const handleAddPart = () => {
+    setParts([...parts, newPartTitle]);
+    setNewPartTitle("");
+    partInputRef.current.focus();
+  };
 
   return (
     <Dialog open={open} onClose={toggle} maxWidth="md">
@@ -133,11 +141,16 @@ export default function AssignmentModal({ assignments, open, toggle }) {
                 <TextField
                   value={newPartTitle}
                   onChange={(e) => setNewPartTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newPartTitle !== "")
+                      handleAddPart();
+                  }}
                   label="Assignment Category Title"
                   size="small"
+                  inputRef={partInputRef}
                 />
                 <Button
-                  onClick={() => setParts([...parts, newPartTitle])}
+                  onClick={handleAddPart}
                   variant="contained"
                   color="success"
                   size="small"

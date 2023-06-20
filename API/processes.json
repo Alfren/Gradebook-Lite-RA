@@ -1,0 +1,24 @@
+{
+  "apps": [
+    {
+      "name": "api",
+      "script": "server.js",
+      "merge_logs": true,
+      "max_restarts": 20,
+      "instances": 4,
+      "max_memory_restart": "200M",
+      "env": {
+        "PORT": 4000,
+        "NODE_ENV": "development",
+        "DB_CONNECTION": "mongodb+srv://ArgentineTeachers:bTaxYtfI5fWOO7VZ@ar.j8vmrip.mongodb.net/gradebook-ar?retryWrites=true&w=majority",
+        "NODE_TLS_REJECT_UNAUTHORIZED": 0
+      },
+      "env_production": {
+        "PORT": 4000,
+        "NODE_ENV": "production",
+        "DB_CONNECTION": "mongodb+srv://ArgentineTeachers:bTaxYtfI5fWOO7VZ@ar.j8vmrip.mongodb.net/gradebook-ar?retryWrites=true&w=majority",
+        "NODE_TLS_REJECT_UNAUTHORIZED": 1
+      }
+    }
+  ]
+}

@@ -42,12 +42,6 @@ const init = async () => {
     });
   }
   configureApiEndpoints(app);
-  console.log(
-    `Listening on port ${process.env.PORT} in ${process.env.NODE_ENV} mode`
-  );
-  logger.info(
-    `Listening on port ${process.env.PORT} in ${process.env.NODE_ENV} mode`
-  );
   app.listen(process.env.PORT, async () => {
     try {
       // Setup Secrets from Secrets Manager

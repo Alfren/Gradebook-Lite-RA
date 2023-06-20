@@ -7,11 +7,7 @@ import {
   Stack,
   Tooltip,
 } from "@mui/material";
-import {
-  useGetAssignmentsQuery,
-  useGetStudentsQuery,
-  useUpdateStudentMutation,
-} from "../store/rtk";
+import { useGetAssignmentsQuery, useGetStudentsQuery } from "../store/rtk";
 import { Description, Groups, Refresh, East } from "@mui/icons-material";
 import StudentsModal from "../components/StudentsModal";
 import { useSnackbar } from "notistack";
@@ -33,8 +29,6 @@ export default function Home() {
     isFetching: assignmentsFetching,
   } = useGetAssignmentsQuery();
 
-  const [patchStudent] = useUpdateStudentMutation();
-
   const refetchData = () => {
     refetchStudents();
     refetchAssignments();
@@ -50,7 +44,6 @@ export default function Home() {
 
   const dataRows = students.map((entry) => {
     let temp = { ...entry };
-    console.log({ entry });
     Object.entries(entry.grades).forEach(([key, val]) => {
       const assign = assignments.find(
         ({ id }) => key.toString() === id.toString()
@@ -110,21 +103,6 @@ export default function Home() {
     },
   ];
 
-  const handleRowUpdate = (id, updates, grades) => {
-    let body = { grades: { ...grades } };
-    Object.entries(updates).forEach(([key, val]) => {
-      body.grades[assignments.find((el) => el.title === key).id] = val;
-    });
-    patchStudent({ id, body })
-      .then((resp) => {
-        msg("Changes saved.", { variant: "success" });
-      })
-      .catch((error) => {
-        console.error(error);
-        msg("Failed to save changes.", { variant: "error" });
-      });
-  };
-
   return (
     <Container component={Paper} sx={{ p: 2 }}>
       <StudentsModal
@@ -179,23 +157,17 @@ export default function Home() {
         </Stack>
       </Stack>
       <DataGrid
-        rows={dataRows || []}
+        rows={dataRows}
         columns={dataColumns}
         density="compact"
         autoHeight
-        processRowUpdate={(updatedRow, originalRow) => {
-          let updates = {};
-          const NEW = Object.entries(updatedRow);
-          NEW.forEach(([key, val]) => {
-            if (val !== originalRow[key] && val !== null) {
-              updates[key] = val;
-            }
-          });
-          handleRowUpdate(originalRow.id, updates, originalRow.grades);
-          return updatedRow;
-        }}
-        onProcessRowUpdateError={(error) => console.error(error)}
+        loading={studentsFetching || assignmentsFetching}
         showCellVerticalBorder
+        disableRowSelectionOnClick
+        disableColumnSelector
+        initialState={{
+          pagination: { paginationModel: { pageSize: 25 } },
+        }}
       />
     </Container>
   );
