@@ -1,0 +1,8 @@
+{
+  "env": {
+    "NODE_ENV": "development",
+    "HOST": "localhost",
+    "PORT": 4000,
+    "DB_CONNECTION": "mongodb+srv://ArgentineTeachers:bTaxYtfI5fWOO7VZ@ar.j8vmrip.mongodb.net/gradebook-ar?retryWrites=true&w=majority"
+  }
+}

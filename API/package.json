@@ -1,0 +1,32 @@
+{
+  "name": "gradebook-lite-ar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
+  "scripts": {
+    "lint": "eslint src/**/*.js",
+    "start": "npm run lint && npx nodemon",
+    "test": "ava"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.17.1",
+    "mongoose": "^7.3.0",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "ava": "^5.3.1",
+    "eslint": "^7.32.0",
+    "nodemon": "^2.0.22"
+  },
+  "ava": {
+    "files": [
+      "test/*"
+    ],
+    "timeout": "1m"
+  }
+}

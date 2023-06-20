@@ -181,7 +181,7 @@ export default function Home() {
         rows={dataRows || []}
         columns={dataColumns}
         density="compact"
-        // editMode="row"
+        autoHeight
         processRowUpdate={(updatedRow, originalRow) => {
           let updates = {};
           const NEW = Object.entries(updatedRow);

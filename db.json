@@ -12,24 +12,11 @@
         },
         "2": 8,
         "3": 7
-      },
-      "Test 1": {
-        "Written": -2,
-        "Oral": -2,
-        "Grammar": -2,
-        "TOTAL": -0.9166666666666667
-      },
-      "Project 1": -5,
-      "Essay": 3
+      }
     },
     {
       "id": 2,
       "name": "Jane Doe",
-      "grades": {}
-    },
-    {
-      "id": 3,
-      "name": "test",
       "grades": {}
     }
   ],
@@ -38,11 +25,7 @@
       "id": 1,
       "title": "Test 1",
       "type": "Multiple",
-      "parts": [
-        "Written",
-        "Oral",
-        "Grammar"
-      ]
+      "parts": ["Written", "Oral", "Grammar"]
     },
     {
       "title": "Project 1",
