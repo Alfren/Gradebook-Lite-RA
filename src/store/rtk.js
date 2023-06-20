@@ -2,7 +2,12 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:4000/api" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl:
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:4000/api"
+        : "http://gradebook-lite-ar.us-east-1.elasticbeanstalk.com/",
+  }),
   endpoints: (builder) => ({
     // ------- STUDENTS ------//
     getStudents: builder.query({
