@@ -50,6 +50,7 @@ export default function Home() {
 
   const dataRows = students.map((entry) => {
     let temp = { ...entry };
+    console.log({ entry });
     Object.entries(entry.grades).forEach(([key, val]) => {
       const assign = assignments.find(
         ({ id }) => key.toString() === id.toString()

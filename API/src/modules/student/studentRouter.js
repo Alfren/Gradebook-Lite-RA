@@ -26,4 +26,29 @@ router.post("/", async function (req, res) {
   }
 });
 
+router.patch("/:id", async function (req, res) {
+  const {
+    body,
+    params: { id },
+  } = req;
+  try {
+    const response = await studentModel.findByIdAndUpdate(id, body);
+    res.send(response);
+  } catch (error) {
+    res.status(error.status || 500).send(error);
+  }
+});
+
+router.delete("/:id", async function (req, res) {
+  const {
+    params: { id },
+  } = req;
+  try {
+    const response = await studentModel.findByIdAndDelete(id);
+    res.send(response);
+  } catch (error) {
+    res.status(error.status || 500).send(error);
+  }
+});
+
 module.exports = router;

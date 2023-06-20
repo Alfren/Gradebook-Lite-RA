@@ -10,10 +10,10 @@ const AssignmentSchema = new Schema(
     type: {
       type: String,
       required: true,
+      default: "Single",
     },
     parts: {
       type: Array,
-      required: false,
     },
   },
   {

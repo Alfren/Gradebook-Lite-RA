@@ -40,7 +40,9 @@ export default function StudentGradeDrawer({
       if (typeof val === "object") {
         const values = Object.values(val);
         const sum =
-          values.reduce((total, toAdd) => total + toAdd) / values.length;
+          values.length > 0
+            ? values.reduce((total, toAdd) => total + toAdd) / values.length
+            : 0;
         calcGrades[key].TOTAL = sum;
       }
     });

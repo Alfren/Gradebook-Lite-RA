@@ -8,8 +8,9 @@ const StudentSchema = new Schema(
       required: true,
     },
     grades: {
-      type: Array,
+      type: Object,
       required: true,
+      default: {},
     },
   },
   {
