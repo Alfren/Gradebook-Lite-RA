@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve the React app using Nginx
-FROM nginx:latest
+FROM registry1.dso.mil/ironbank/opensource/nginx/nginx:1.23.2
 
 COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
