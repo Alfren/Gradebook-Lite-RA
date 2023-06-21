@@ -11,6 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
+USER root
 RUN npm install
 
 # Copy the React app source code
