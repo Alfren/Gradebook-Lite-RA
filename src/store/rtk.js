@@ -6,7 +6,7 @@ export const api = createApi({
     baseUrl:
       process.env.NODE_ENV === "development"
         ? "http://localhost:4000/api"
-        : "http://gradebook-lite-ar.us-east-1.elasticbeanstalk.com/",
+        : "http://gradebook-at.us-east-1.elasticbeanstalk.com/",
   }),
   endpoints: (builder) => ({
     // ------- STUDENTS ------//
