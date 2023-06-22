@@ -2,7 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const routerConfig = require("./modules/route");
-const { logger } = require("./helpers/logger");
 const connectDB = require("./db");
 
 const setupStandardMiddlewares = (app) => {
@@ -16,11 +15,6 @@ const setupStandardMiddlewares = (app) => {
 
 const configureApiEndpoints = (app) => {
   app.use("/api", routerConfig.init());
-  // routerConfig.init(app);
-  // define a route handler for the default home page
-  app.get("/", (req, res) => {
-    res.send("Welcome to express-create application! ");
-  });
 };
 
 const init = async () => {
@@ -45,7 +39,7 @@ const init = async () => {
   app.listen(process.env.PORT, async () => {
     try {
       // Setup Secrets from Secrets Manager
-      // const secrets = await retrieveSecrets("losthorizon");
+      // const secrets = await retrieveSecrets("gradebook ");
       // Object.keys(secrets).forEach((key) => {
       //   if (!(key in process.env)) process.env[key] = secrets[key];
       // });

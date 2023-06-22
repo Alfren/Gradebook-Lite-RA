@@ -14,9 +14,15 @@ import { store } from "./store/store";
 import { IconButton } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import TitleBar from "./components/TitleBar";
-import { Home, Error } from "./pages/index";
+import { Home, Error, Login } from "./pages/index";
 
 export default function App() {
+  const [mode, setMode] = useState(true);
+  const toggleTheme = () => setMode(!mode);
+  const theme = createTheme({ palette: { mode: mode ? "dark" : "light" } });
+
+  const [permitted, keepUser] = useState([null, false]);
+
   function SnackbarCloseButton({ snackbarKey }) {
     const { closeSnackbar } = useSnackbar();
     return (
@@ -25,26 +31,22 @@ export default function App() {
       </IconButton>
     );
   }
-  const [mode, setMode] = useState(true);
-  const toggleTheme = () => setMode(!mode);
-  const theme = createTheme({ palette: { mode: mode ? "dark" : "light" } });
+
   const router = createBrowserRouter([
     {
-      element: <TitleBar toggleTheme={toggleTheme} mode={mode} />,
-      children: [
-        // {
-        //   path: "/login",
-        //   element: <Login />,
-        // },
-        {
-          path: "/",
-          element: <Home />,
-        },
-        {
-          path: "*",
-          element: <Error />,
-        },
-      ],
+      element: <TitleBar toggleTheme={toggleTheme} />,
+      children: permitted[1]
+        ? [
+            {
+              path: "/",
+              element: <Home />,
+            },
+            {
+              path: "*",
+              element: <Error />,
+            },
+          ]
+        : [{ path: "/", element: <Login keepUser={keepUser} /> }],
       errorElement: <ErrorBoundary />,
     },
   ]);
@@ -58,11 +60,12 @@ export default function App() {
       )}
     >
       <ApiProvider api={api}>
-        <Provider store={store}></Provider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <RouterProvider router={router} />
-        </ThemeProvider>
+        <Provider store={store}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </Provider>
       </ApiProvider>
     </SnackbarProvider>
   );

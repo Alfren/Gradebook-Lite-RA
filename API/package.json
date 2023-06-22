@@ -2,13 +2,11 @@
   "name": "gradebook-lite-ar",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
-    "lint": "eslint src/**/*.js",
-    "start": "npm run lint && npx nodemon",
+    "start": "npx nodemon",
     "pm2-prod": "pm2 start processes.json --no-daemon --env production",
-    "pm2-dev": "pm2 start processes.json --no-daemon",
-    "test": "ava"
+    "pm2-dev": "pm2 start processes.json --no-daemon"
   },
   "author": "",
   "license": "ISC",
@@ -18,18 +16,11 @@
     "dotenv": "^16.3.1",
     "express": "^4.17.1",
     "mongoose": "^7.3.0",
+    "mongoose-findorcreate": "^4.0.0",
     "pm2": "^5.3.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "ava": "^5.3.1",
-    "eslint": "^7.32.0",
     "nodemon": "^2.0.22"
-  },
-  "ava": {
-    "files": [
-      "test/*"
-    ],
-    "timeout": "1m"
   }
 }

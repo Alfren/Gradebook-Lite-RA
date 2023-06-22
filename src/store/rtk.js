@@ -57,6 +57,11 @@ export const api = createApi({
       }),
       invalidatesTags: ["assignments"],
     }),
+    // ------- TEACHER ------//
+    getTeacher: builder.mutation({
+      query: (user) => `/teachers/${user}`,
+      providesTags: ["teacher"],
+    }),
   }),
 });
 
@@ -70,4 +75,5 @@ export const {
   useGetAssignmentsQuery,
   useCreateAssignmentMutation,
   useDeleteAssignmentMutation,
+  useGetTeacherMutation,
 } = api;

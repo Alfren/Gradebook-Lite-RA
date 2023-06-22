@@ -4,8 +4,7 @@ import { Brightness6 } from "@mui/icons-material";
 import AR_Flag from "../images/AR-flag.svg";
 import A from "../images/A+.png";
 import { Link } from "react-router-dom";
-export default function TitleBar({ toggleTheme, mode }) {
-  // const navigate = useNavigate();
+export default function TitleBar({ toggleTheme }) {
   return (
     <>
       <Stack
@@ -25,11 +24,11 @@ export default function TitleBar({ toggleTheme, mode }) {
               color: "inherit",
               display: "flex",
             }}
-            title="Gradebook Lite AR - Home"
+            title="Gradebook 🇦🇷 - Home"
           >
             <Box component="img" src={A} height={30} sx={{ mx: 1 }} />
             <Typography variant="h5">
-              Gradebook Lite{" "}
+              Gradebook{" "}
               <img
                 src={AR_Flag}
                 width={20}
@@ -41,11 +40,9 @@ export default function TitleBar({ toggleTheme, mode }) {
           </Link>
         </Stack>
         <Stack direction="row" spacing={2}>
-          {/* <Button onClick={() => navigate("/")}>Home</Button> */}
           <IconButton onClick={toggleTheme}>
             <Brightness6 />
           </IconButton>
-          {/* <Button onClick={() => navigate("/login")}>Login</Button> */}
         </Stack>
       </Stack>
       <Outlet />
