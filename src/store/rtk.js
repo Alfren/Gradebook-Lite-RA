@@ -80,6 +80,22 @@ export const api = createApi({
         method: "DELETE",
       }),
     }),
+    // ------- CLASS ------//
+    getTeacherClasses: builder.query({
+      query: (teacherId) => `/classes/${teacherId}`,
+      providesTags: (resp) =>
+        resp
+          ? ["teacher-classes", `teacher-classes-${resp.teacherId}`]
+          : ["teacher-classes"],
+    }),
+    createClass: builder.mutation({
+      query: (body) => ({
+        url: `/classes`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["teacher-classes"],
+    }),
   }),
 });
 
@@ -96,4 +112,6 @@ export const {
   useGetTeacherMutation,
   useCreateTeacherMutation,
   useDeleteAccountMutation,
+  useGetTeacherClassesQuery,
+  useCreateClassMutation,
 } = api;

@@ -14,9 +14,9 @@ router.get("/:teacherId", async function (req, res) {
   const { teacherId } = req.params;
   try {
     const response = await classModel
-      .findOne({ teacherId })
-      .populate("students")
-      .populate("assignments")
+      .find({ teacherId })
+      .populate({ path: "students", select: "_id name grades" })
+      .populate({ path: "assignments", select: "_id title type parts" })
       .exec();
     res.send(response);
   } catch (error) {
