@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const connection =
-  window.location.origin === "localhost:3000"
-    ? "10.1.10.123:4000/api"
+  window.location.origin !== "http://localhost:3000"
+    ? "http://10.1.10.123:4000/api"
     : "http://localhost:4000/api";
 
 export const api = createApi({
