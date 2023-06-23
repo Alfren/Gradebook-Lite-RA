@@ -1,24 +1,29 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+const connection =
+  window.location.origin === "localhost:3000"
+    ? "10.1.10.123:4000/api"
+    : "http://localhost:4000/api";
+
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl:
       process.env.NODE_ENV === "development"
-        ? "http://localhost:4000/api"
+        ? connection
         : "http://gradebook.us-east-1.elasticbeanstalk.com/api",
   }),
   endpoints: (builder) => ({
     // ------- STUDENTS ------//
     getStudents: builder.query({
-      query: () => `/students`,
+      query: (teacherId) => `/students/${teacherId}`,
       providesTags: ["students"],
     }),
     createStudent: builder.mutation({
-      query: (name) => ({
+      query: (body) => ({
         url: `/students`,
         method: "POST",
-        body: { name, grades: {} },
+        body,
       }),
       invalidatesTags: ["students"],
     }),
@@ -39,7 +44,7 @@ export const api = createApi({
     }),
     // ------- ASSIGNMENTS ------//
     getAssignments: builder.query({
-      query: () => `/assignments`,
+      query: (teacherId) => `/assignments/${teacherId}`,
       providesTags: ["assignments"],
     }),
     createAssignment: builder.mutation({
@@ -57,6 +62,24 @@ export const api = createApi({
       }),
       invalidatesTags: ["assignments"],
     }),
+    // ------- TEACHER ------//
+    getTeacher: builder.mutation({
+      query: (user) => `/teachers/${user}`,
+      providesTags: ["teacher"],
+    }),
+    createTeacher: builder.mutation({
+      query: (body) => ({
+        url: "/teachers",
+        method: "POST",
+        body,
+      }),
+    }),
+    deleteAccount: builder.mutation({
+      query: (teacherId) => ({
+        url: `/teachers/complete/${teacherId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -70,4 +93,7 @@ export const {
   useGetAssignmentsQuery,
   useCreateAssignmentMutation,
   useDeleteAssignmentMutation,
+  useGetTeacherMutation,
+  useCreateTeacherMutation,
+  useDeleteAccountMutation,
 } = api;

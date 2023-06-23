@@ -15,6 +15,7 @@ const AssignmentSchema = new Schema(
     parts: {
       type: Array,
     },
+    teacherId: { type: String, required: true },
   },
   {
     timestamps: true,

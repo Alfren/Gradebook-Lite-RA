@@ -1,8 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
+import userReducer from "./userSlice";
 import { api } from "./rtk";
 
 export const store = configureStore({
   reducer: {
+    user: userReducer,
     // api
     [api.reducerPath]: api.reducer,
   },

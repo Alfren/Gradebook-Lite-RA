@@ -18,6 +18,7 @@ import {
 } from "../store/rtk";
 import { Add, Delete } from "@mui/icons-material";
 import ConfirmDialog from "./ConfirmDialog";
+import { useSelector } from "react-redux";
 export default function StudentsModal({ students, open, toggle }) {
   const [postStudent] = useCreateStudentMutation();
   const [deleteStudent] = useDeleteStudentMutation();
@@ -25,8 +26,10 @@ export default function StudentsModal({ students, open, toggle }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmData, setConfirmData] = useState({});
 
+  const { id: teacherId } = useSelector((state) => state.user);
+
   const createStudent = () => {
-    postStudent(name)
+    postStudent({ name, teacherId })
       .then((resp) => {
         setName("");
       })

@@ -1,18 +1,17 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const findOrCreate = require("mongoose-findorcreate");
 
-const StudentSchema = new Schema(
+const TeacherSchema = new Schema(
   {
-    name: {
+    username: {
       type: String,
       required: true,
     },
-    grades: {
-      type: Object,
-      required: true,
-      default: new Object(),
+    classes: {
+      type: Array,
+      default: [],
     },
-    teacherId: { type: String, required: true },
   },
   {
     timestamps: true,
@@ -27,5 +26,6 @@ const StudentSchema = new Schema(
     },
   }
 );
+TeacherSchema.plugin(findOrCreate);
 
-module.exports = Student = mongoose.model("Student", StudentSchema);
+module.exports = Teacher = mongoose.model("Teacher", TeacherSchema);
