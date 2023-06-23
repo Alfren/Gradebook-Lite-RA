@@ -1,5 +1,12 @@
-import { useState } from "react";
-import { Button, Stack, TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Checkbox,
+  InputLabel,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useCreateTeacherMutation, useGetTeacherMutation } from "../store/rtk";
 import { useSnackbar } from "notistack";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,6 +16,7 @@ import { East, West } from "@mui/icons-material";
 export default function Login() {
   const { closeSnackbar: msg } = useSnackbar();
   const [username, setUsername] = useState("");
+  const [rememberCheck, setRememberCheck] = useState(false);
   const [error, setError] = useState("");
   const [newAccountForm, setNewAccountForm] = useState(false);
   const [login, { isLoading: getTeacherIsloading }] = useGetTeacherMutation();
@@ -18,9 +26,9 @@ export default function Login() {
   const dispatch = useDispatch();
   const { permitted } = useSelector((state) => state.user);
 
-  const checkLogin = () => {
+  const checkLogin = (rememberedUser) => {
     setError("");
-    login(username)
+    login(username || rememberedUser)
       .then(({ data, error }) => {
         if (error) throw new Error(error);
         if (data === null) {
@@ -28,7 +36,9 @@ export default function Login() {
           setError("Username not found.");
           return;
         }
-        if (data.id && data.username)
+        if (data.id && data.username) {
+          if (rememberCheck)
+            window.localStorage.setItem("gradebook-user", username);
           dispatch(
             setUserAssets({
               id: data.id,
@@ -36,11 +46,17 @@ export default function Login() {
               username: data.username,
             })
           );
+        }
       })
       .catch((error) => {
         console.error(error);
       });
   };
+
+  useEffect(() => {
+    const rememberedUser = window.localStorage.getItem("gradebook-user");
+    if (rememberedUser) checkLogin(rememberedUser);
+  }, [checkLogin]);
 
   const createNewTeacher = () => {
     createTeacher({ username })
@@ -100,6 +116,16 @@ export default function Login() {
         </>
       ) : (
         <>
+          <InputLabel htmlFor="rememberCheck">
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Checkbox
+                id="rememberCheck"
+                checked={rememberCheck}
+                onChange={(e, checked) => setRememberCheck(checked)}
+              />
+              <Typography>Remember me</Typography>
+            </Stack>
+          </InputLabel>
           <Button
             variant="contained"
             color="success"

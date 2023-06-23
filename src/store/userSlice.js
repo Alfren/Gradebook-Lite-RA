@@ -19,6 +19,7 @@ export const userSlice = createSlice({
       state.username = undefined;
       state.permitted = false;
       state.id = undefined;
+      window.localStorage.clear();
     },
   },
 });

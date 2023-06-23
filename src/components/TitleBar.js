@@ -148,6 +148,7 @@ export default function TitleBar({ toggleTheme }) {
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
+                    window.localStorage.clear();
                     dispatch(logout());
                     handleClose();
                   }}
