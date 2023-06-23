@@ -69,6 +69,12 @@ export const api = createApi({
         body,
       }),
     }),
+    deleteAccount: builder.mutation({
+      query: (teacherId) => ({
+        url: `/teachers/complete/${teacherId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -84,4 +90,5 @@ export const {
   useDeleteAssignmentMutation,
   useGetTeacherMutation,
   useCreateTeacherMutation,
+  useDeleteAccountMutation,
 } = api;

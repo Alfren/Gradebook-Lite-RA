@@ -9,6 +9,7 @@ import { East, West } from "@mui/icons-material";
 export default function Login() {
   const { closeSnackbar: msg } = useSnackbar();
   const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
   const [newAccountForm, setNewAccountForm] = useState(false);
   const [login, { isLoading: getTeacherIsloading }] = useGetTeacherMutation();
   const [createTeacher, { isLoading: newTeacherisLoading }] =
@@ -18,11 +19,13 @@ export default function Login() {
   const { permitted } = useSelector((state) => state.user);
 
   const checkLogin = () => {
+    setError("");
     login(username)
       .then(({ data, error }) => {
         if (error) throw new Error(error);
         if (data === null) {
           msg("Username not found.", { variant: "warning" });
+          setError("Username not found.");
           return;
         }
         if (data.id && data.username)
@@ -43,7 +46,8 @@ export default function Login() {
     createTeacher({ username })
       .then(({ data, error }) => {
         if (error) throw new Error(error);
-        if (data.id && data.username)
+        if (data.id && data.username) {
+          msg("Account created!", { variant: "success" });
           dispatch(
             setUserAssets({
               id: data.id,
@@ -51,6 +55,7 @@ export default function Login() {
               username: data.username,
             })
           );
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -70,6 +75,8 @@ export default function Login() {
         required
         autoComplete="username"
         disabled={getTeacherIsloading || permitted}
+        error={error !== ""}
+        helperText={error}
       />
       {newAccountForm ? (
         <>
@@ -82,7 +89,10 @@ export default function Login() {
           </Button>
           <Button
             color="warning"
-            onClick={() => setNewAccountForm(false)}
+            onClick={() => {
+              setNewAccountForm(false);
+              setError("");
+            }}
             startIcon={<West />}
           >
             Back To Login
@@ -100,7 +110,10 @@ export default function Login() {
           </Button>
           <Button
             color="warning"
-            onClick={() => setNewAccountForm(true)}
+            onClick={() => {
+              setNewAccountForm(true);
+              setError("");
+            }}
             endIcon={<East />}
           >
             Create New Account

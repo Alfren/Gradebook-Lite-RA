@@ -1,23 +1,77 @@
+import { useState } from "react";
 import { Outlet } from "react-router";
 import {
+  Backdrop,
   Box,
+  CircularProgress,
   IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
   Paper,
   Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Brightness6, Logout } from "@mui/icons-material";
+import {
+  AccountCircle,
+  Brightness6,
+  Logout,
+  MoreVert,
+} from "@mui/icons-material";
 import AR_Flag from "../images/AR-flag.svg";
 import A from "../images/A+.png";
+import ConfirmDialog from "./ConfirmDialog";
 import { Link } from "react-router-dom";
 import { logout } from "../store/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { useDeleteAccountMutation } from "../store/rtk";
+
 export default function TitleBar({ toggleTheme }) {
   const dispatch = useDispatch();
-  const { permitted } = useSelector((state) => state.user);
+  const {
+    permitted,
+    id: teacherId,
+    username,
+  } = useSelector((state) => state.user);
+  const [deleteAccount, { isLoading: deleteIsLoading }] =
+    useDeleteAccountMutation();
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const handleMenuClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmData, setConfirmData] = useState({});
+
+  const handleDeleteAccount = () => {
+    handleClose();
+    deleteAccount(teacherId)
+      .then(() => {
+        dispatch(logout());
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  if (deleteIsLoading) {
+    return (
+      <Backdrop open={deleteIsLoading} component={Stack}>
+        <CircularProgress size={50} color="error" />
+        <Typography align="center">Deleting account data</Typography>
+        <Typography align="center">Please wait a few moments..</Typography>
+      </Backdrop>
+    );
+  }
+
   return (
     <>
+      <ConfirmDialog
+        open={confirmOpen}
+        toggle={() => setConfirmOpen(!confirmOpen)}
+        data={confirmData}
+      />
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -52,15 +106,65 @@ export default function TitleBar({ toggleTheme }) {
         </Stack>
         <Stack direction="row" spacing={2}>
           {permitted && (
-            <Tooltip title="Logout" arrow disableInteractive>
-              <IconButton onClick={() => dispatch(logout())} color="error">
-                <Logout />
-              </IconButton>
-            </Tooltip>
+            <>
+              <Tooltip title="Account Options" arrow disableInteractive>
+                <IconButton onClick={handleMenuClick}>
+                  <MoreVert />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                anchorEl={anchorEl}
+                open={anchorEl !== null}
+                onClose={handleClose}
+              >
+                <Typography
+                  align="center"
+                  py={1}
+                  variant="h6"
+                  color="text.secondary"
+                >
+                  {username}
+                </Typography>
+                <MenuItem
+                  onClick={() => {
+                    setConfirmData({
+                      title: "Delete Your Account?",
+                      description: `This is a permanent action`,
+                      actions: [
+                        {
+                          action: handleDeleteAccount,
+                          color: "error",
+                          label: "DELETE",
+                        },
+                      ],
+                    });
+                    setConfirmOpen(true);
+                  }}
+                >
+                  <ListItemIcon>
+                    <AccountCircle fontSize="small" color="error" />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Delete Account</Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    dispatch(logout());
+                    handleClose();
+                  }}
+                >
+                  <ListItemIcon>
+                    <Logout fontSize="small" color="warning" />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Logout</Typography>
+                </MenuItem>
+              </Menu>
+            </>
           )}
-          <IconButton onClick={toggleTheme}>
-            <Brightness6 />
-          </IconButton>
+          <Tooltip title="Toggle dark/light mode" arrow disableInteractive>
+            <IconButton onClick={toggleTheme}>
+              <Brightness6 />
+            </IconButton>
+          </Tooltip>
         </Stack>
       </Stack>
       <Outlet />
