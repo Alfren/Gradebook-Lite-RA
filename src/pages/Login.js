@@ -56,7 +56,7 @@ export default function Login() {
   useEffect(() => {
     const rememberedUser = window.localStorage.getItem("gradebook-user");
     if (rememberedUser) checkLogin(rememberedUser);
-  }, [checkLogin]);
+  });
 
   const createNewTeacher = () => {
     createTeacher({ username })
