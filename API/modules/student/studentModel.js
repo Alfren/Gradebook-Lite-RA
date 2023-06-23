@@ -10,8 +10,9 @@ const StudentSchema = new Schema(
     grades: {
       type: Object,
       required: true,
-      default: {},
+      default: new Object(),
     },
+    teacherId: { type: String, required: true },
   },
   {
     timestamps: true,

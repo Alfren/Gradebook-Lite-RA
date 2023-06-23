@@ -10,10 +10,20 @@ router.get("/", async function (req, res) {
   }
 });
 
+router.get("/:teacherId", async function (req, res) {
+  const { teacherId } = req.params;
+  try {
+    const response = await studentModel.find({ teacherId });
+    res.send(response);
+  } catch (error) {
+    res.status(error.status || 500).send(error);
+  }
+});
+
 router.post("/", async function (req, res) {
   const { body } = req;
   try {
-    const response = await studentModel.create(body);
+    const response = await studentModel.create({ ...body, grades: {} });
     res.send(response);
   } catch (error) {
     res.status(error.status || 500).send(error);

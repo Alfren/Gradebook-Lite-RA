@@ -9,7 +9,14 @@ const setupStandardMiddlewares = (app) => {
   app.use(bodyParser.json());
   // parse requests of content-type - application/x-www-form-urlencoded
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(cors());
+  app.use(
+    cors({
+      origin:
+        process.env.NODE_ENV === "development"
+          ? "*"
+          : "http://gradebook.us-east-1.elasticbeanstalk.com",
+    })
+  );
   return;
 };
 

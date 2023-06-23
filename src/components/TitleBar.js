@@ -1,10 +1,21 @@
 import { Outlet } from "react-router";
-import { Box, IconButton, Paper, Stack, Typography } from "@mui/material";
-import { Brightness6 } from "@mui/icons-material";
+import {
+  Box,
+  IconButton,
+  Paper,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { Brightness6, Logout } from "@mui/icons-material";
 import AR_Flag from "../images/AR-flag.svg";
 import A from "../images/A+.png";
 import { Link } from "react-router-dom";
+import { logout } from "../store/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 export default function TitleBar({ toggleTheme }) {
+  const dispatch = useDispatch();
+  const { permitted } = useSelector((state) => state.user);
   return (
     <>
       <Stack
@@ -40,6 +51,13 @@ export default function TitleBar({ toggleTheme }) {
           </Link>
         </Stack>
         <Stack direction="row" spacing={2}>
+          {permitted && (
+            <Tooltip title="Logout" arrow disableInteractive>
+              <IconButton onClick={() => dispatch(logout())} color="error">
+                <Logout />
+              </IconButton>
+            </Tooltip>
+          )}
           <IconButton onClick={toggleTheme}>
             <Brightness6 />
           </IconButton>

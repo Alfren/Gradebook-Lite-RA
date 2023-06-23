@@ -11,14 +11,14 @@ export const api = createApi({
   endpoints: (builder) => ({
     // ------- STUDENTS ------//
     getStudents: builder.query({
-      query: () => `/students`,
+      query: (teacherId) => `/students/${teacherId}`,
       providesTags: ["students"],
     }),
     createStudent: builder.mutation({
-      query: (name) => ({
+      query: (body) => ({
         url: `/students`,
         method: "POST",
-        body: { name, grades: {} },
+        body,
       }),
       invalidatesTags: ["students"],
     }),
@@ -39,7 +39,7 @@ export const api = createApi({
     }),
     // ------- ASSIGNMENTS ------//
     getAssignments: builder.query({
-      query: () => `/assignments`,
+      query: (teacherId) => `/assignments/${teacherId}`,
       providesTags: ["assignments"],
     }),
     createAssignment: builder.mutation({
@@ -62,6 +62,13 @@ export const api = createApi({
       query: (user) => `/teachers/${user}`,
       providesTags: ["teacher"],
     }),
+    createTeacher: builder.mutation({
+      query: (body) => ({
+        url: "/teachers",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -76,4 +83,5 @@ export const {
   useCreateAssignmentMutation,
   useDeleteAssignmentMutation,
   useGetTeacherMutation,
+  useCreateTeacherMutation,
 } = api;

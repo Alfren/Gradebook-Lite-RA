@@ -13,10 +13,8 @@ router.get("/", async function (req, res) {
 router.get("/:username", async function (req, res) {
   const { username } = req.params;
   try {
-    const response = await teacherModel.findOrCreate(
-      { filter: { username } },
-      { username }
-    );
+    const response = await teacherModel.findOne({ username });
+    console.log(response);
     res.send(response);
   } catch (error) {
     res.status(error.status || 500).send(error);

@@ -10,6 +10,16 @@ router.get("/", async function (req, res) {
   }
 });
 
+router.get("/:teacherId", async function (req, res) {
+  const { teacherId } = req.params;
+  try {
+    const response = await assignmentModel.find({ teacherId });
+    res.send(response);
+  } catch (error) {
+    res.status(error.status || 500).send(error);
+  }
+});
+
 router.post("/", async function (req, res) {
   const { body } = req;
   try {

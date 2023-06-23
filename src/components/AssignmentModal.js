@@ -21,8 +21,10 @@ import {
 } from "../store/rtk";
 import ConfirmDialog from "./ConfirmDialog";
 import CloseButton from "./CloseButton";
+import { useSelector } from "react-redux";
 
 export default function AssignmentModal({ assignments, open, toggle }) {
+  const { id: teacherId } = useSelector((state) => state.user);
   const [postAssignment] = useCreateAssignmentMutation();
   const [deleteAssignment] = useDeleteAssignmentMutation();
   const [assignment, setAssignment] = useState("");
@@ -35,7 +37,7 @@ export default function AssignmentModal({ assignments, open, toggle }) {
   const [confirmData, setConfirmData] = useState({});
 
   const createAssignment = () => {
-    let body = { title: assignment, type };
+    let body = { title: assignment, type, teacherId };
     if (type === "Multiple") body.parts = parts;
     postAssignment(body)
       .then(() => {

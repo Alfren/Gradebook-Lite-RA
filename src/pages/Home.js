@@ -14,20 +14,22 @@ import { useSnackbar } from "notistack";
 import AssignmentModal from "../components/AssignmentModal";
 import StudentGradeDrawer from "../components/StudentGradeDrawer";
 import { DataGrid } from "@mui/x-data-grid";
+import { useSelector } from "react-redux";
 
 export default function Home() {
   const { closeSnackbar: msg } = useSnackbar();
+  const { id: teacherId } = useSelector((state) => state.user);
   const {
     data: students = [],
     refetch: refetchStudents,
     isFetching: studentsFetching,
-  } = useGetStudentsQuery();
+  } = useGetStudentsQuery(teacherId, { skip: !teacherId });
 
   const {
     data: assignments = [],
     refetch: refetchAssignments,
     isFetching: assignmentsFetching,
-  } = useGetAssignmentsQuery();
+  } = useGetAssignmentsQuery(teacherId, { skip: !teacherId });
 
   const refetchData = () => {
     refetchStudents();
@@ -80,7 +82,8 @@ export default function Home() {
             }
           }
         });
-        return (total / assignments.length).toFixed(2);
+        const result = total / assignments.length;
+        return isNaN(result) ? "" : total.toFixed(2);
       },
     },
     {

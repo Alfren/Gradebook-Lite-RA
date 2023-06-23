@@ -7,10 +7,7 @@ import {
   useRouteError,
 } from "react-router-dom";
 import { SnackbarProvider, useSnackbar } from "notistack";
-import { ApiProvider } from "@reduxjs/toolkit/dist/query/react";
-import { Provider } from "react-redux";
-import { api } from "./store/rtk";
-import { store } from "./store/store";
+import { useSelector } from "react-redux";
 import { IconButton } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import TitleBar from "./components/TitleBar";
@@ -21,7 +18,7 @@ export default function App() {
   const toggleTheme = () => setMode(!mode);
   const theme = createTheme({ palette: { mode: mode ? "dark" : "light" } });
 
-  const [permitted, keepUser] = useState([null, false]);
+  const { permitted } = useSelector((state) => state.user);
 
   function SnackbarCloseButton({ snackbarKey }) {
     const { closeSnackbar } = useSnackbar();
@@ -34,8 +31,8 @@ export default function App() {
 
   const router = createBrowserRouter([
     {
-      element: <TitleBar toggleTheme={toggleTheme} />,
-      children: permitted[1]
+      element: <TitleBar toggleTheme={toggleTheme} permitted={permitted} />,
+      children: permitted
         ? [
             {
               path: "/",
@@ -46,28 +43,22 @@ export default function App() {
               element: <Error />,
             },
           ]
-        : [{ path: "/", element: <Login keepUser={keepUser} /> }],
+        : [{ path: "/", element: <Login /> }],
       errorElement: <ErrorBoundary />,
     },
   ]);
 
   return (
-    <SnackbarProvider
-      preventDuplicate
-      maxSnack={5}
-      action={(snackbarKey) => (
-        <SnackbarCloseButton snackbarKey={snackbarKey} />
-      )}
-    >
-      <ApiProvider api={api}>
-        <Provider store={store}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <RouterProvider router={router} />
-          </ThemeProvider>
-        </Provider>
-      </ApiProvider>
-    </SnackbarProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <SnackbarProvider
+        preventDuplicate
+        maxSnack={5}
+        action={(key) => <SnackbarCloseButton snackbarKey={key} />}
+      >
+        <RouterProvider router={router} />
+      </SnackbarProvider>
+    </ThemeProvider>
   );
 }
 
