@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const connection =
   window.location.origin !== "http://localhost:3000"
-    ? "http://10.1.10.123:4000/api"
+    ? "http://192.168.1.4:4000/api"
     : "http://localhost:4000/api";
 
 export const api = createApi({
@@ -25,7 +25,7 @@ export const api = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["students"],
+      invalidatesTags: ["students", "classes"],
     }),
     updateStudent: builder.mutation({
       query: ({ id, body }) => ({
@@ -33,14 +33,14 @@ export const api = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: ["students"],
+      invalidatesTags: ["students", "classes"],
     }),
     deleteStudent: builder.mutation({
-      query: (id) => ({
-        url: `/students/${id}`,
+      query: ({ id, classId }) => ({
+        url: `/students/${id}/class/${classId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["students"],
+      invalidatesTags: ["students", "classes"],
     }),
     // ------- ASSIGNMENTS ------//
     getAssignments: builder.query({
@@ -53,14 +53,14 @@ export const api = createApi({
         method: "POST",
         body: body,
       }),
-      invalidatesTags: ["assignments"],
+      invalidatesTags: ["assignments", "classes"],
     }),
     deleteAssignment: builder.mutation({
-      query: (id) => ({
-        url: `/assignments/${id}`,
+      query: ({ id, classId }) => ({
+        url: `/assignments/${id}/class/${classId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["assignments"],
+      invalidatesTags: ["assignments", "classes"],
     }),
     // ------- TEACHER ------//
     getTeacher: builder.mutation({
@@ -73,20 +73,22 @@ export const api = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["teacher"],
     }),
     deleteAccount: builder.mutation({
       query: (teacherId) => ({
         url: `/teachers/complete/${teacherId}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["teacher"],
     }),
     // ------- CLASS ------//
     getTeacherClasses: builder.query({
       query: (teacherId) => `/classes/${teacherId}`,
       providesTags: (resp) =>
         resp
-          ? ["teacher-classes", `teacher-classes-${resp.teacherId}`]
-          : ["teacher-classes"],
+          ? ["classes", ...resp.map((item) => `classes-${item.id}`)]
+          : ["classes"],
     }),
     createClass: builder.mutation({
       query: (body) => ({
@@ -94,7 +96,7 @@ export const api = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["teacher-classes"],
+      invalidatesTags: ["classes"],
     }),
   }),
 });

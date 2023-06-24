@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  Box,
   Button,
   Container,
   IconButton,
@@ -10,7 +11,15 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useGetTeacherClassesQuery } from "../store/rtk";
-import { Description, Groups, Refresh, East, Add } from "@mui/icons-material";
+import {
+  Description,
+  Groups,
+  Refresh,
+  East,
+  Add,
+  Addchart,
+  Class,
+} from "@mui/icons-material";
 import StudentsModal from "../components/StudentsModal";
 import { useSnackbar } from "notistack";
 import AssignmentModal from "../components/AssignmentModal";
@@ -22,7 +31,11 @@ import NewClassModal from "../components/NewClassModal";
 export default function Home() {
   const { closeSnackbar: msg } = useSnackbar();
   const { id: teacherId } = useSelector((state) => state.user);
-  const { data: classes, refetch } = useGetTeacherClassesQuery(teacherId, {
+  const {
+    data: classes,
+    refetch,
+    isFetching,
+  } = useGetTeacherClassesQuery(teacherId, {
     skip: !teacherId,
   });
 
@@ -39,7 +52,7 @@ export default function Home() {
   const [editRow, setEditRow] = useState({});
   const [editOpen, setEditOpen] = useState(false);
 
-  const [newClassOpen, setNewClassOpen] = useState(true);
+  const [newClassOpen, setNewClassOpen] = useState(false);
 
   const [currentClass, setCurrentClass] = useState({});
   const [classSelectValue, setClassSelectValue] = useState("");
@@ -48,7 +61,10 @@ export default function Home() {
   const [dataColumns, setDataColumns] = useState([]);
 
   useEffect(() => {
-    if (currentClass?.students?.length > 0) {
+    if (classSelectValue && !isFetching) {
+      setCurrentClass(classes.find(({ title }) => title === classSelectValue));
+    }
+    if (currentClass?.students?.length > 0 && !isFetching) {
       let arr = currentClass?.students?.map((entry) => {
         let temp = { ...entry };
         Object.entries(entry.grades).forEach(([key, val]) => {
@@ -66,12 +82,13 @@ export default function Home() {
 
     if (currentClass?.assignments?.length > 0) {
       const cols = [
-        { field: "name", headerName: "Student", flex: 1 },
+        { field: "name", headerName: "Student", flex: 1, minWidth: 150 },
         ...currentClass?.assignments.map(({ title, type }) => ({
           field: title,
           headerAlign: "center",
           align: "center",
           flex: 1,
+          minWidth: 100,
           gradeType: type,
           valueGetter: ({ value, colDef }) =>
             Number(colDef?.gradeType === "Multiple" ? value?.TOTAL : value) ||
@@ -104,15 +121,16 @@ export default function Home() {
           sortable: false,
           filterable: false,
           disableColumnMenu: true,
+          width: 50,
           renderCell: ({ row }) => (
-            <IconButton
+            <Button
               onClick={() => {
                 setEditRow(row);
                 setEditOpen(true);
               }}
             >
               <East />
-            </IconButton>
+            </Button>
           ),
         },
       ];
@@ -120,7 +138,7 @@ export default function Home() {
     } else {
       setDataColumns([{ field: "name", headerName: "Student", flex: 1 }]);
     }
-  }, [currentClass]);
+  }, [currentClass, isFetching]);
 
   const changeClass = (e) => {
     const val = e.target.value;
@@ -137,11 +155,13 @@ export default function Home() {
         students={currentClass?.students || []}
         open={studentModal}
         toggle={toggleStudentModal}
+        classId={currentClass.id}
       />
       <AssignmentModal
         assignments={currentClass?.assignments || []}
         open={assignmentModal}
         toggle={toggleAssignmentModal}
+        classId={currentClass.id}
       />
       <StudentGradeDrawer
         open={editOpen}
@@ -158,58 +178,59 @@ export default function Home() {
         direction="row"
         columnGap={1}
         justifyContent="space-between"
+        flexWrap="wrap"
         mb={2}
       >
-        <Tooltip title="Refetch data" arrow disableInteractive>
-          <span>
-            <IconButton
-              onClick={refetchData}
-              color="primary"
-              // disabled={studentsFetching || assignmentsFetching}
-            >
-              <Refresh />
-            </IconButton>
-          </span>
-        </Tooltip>
-        {classes?.length > 0 && (
+        <Box flex={1} maxWidth="100%">
           <TextField
             label="Select Class"
             value={classSelectValue}
             size="small"
             onChange={changeClass}
             select
-            sx={{ minWidth: 150, width: "fit-content" }}
+            sx={{ minWidth: 150, maxWidth: "inherit" }}
+            disabled={classes === undefined || classes?.length === 0}
           >
-            {classes.map((entry) => (
+            {classes?.map((entry) => (
               <MenuItem key={entry.id} value={entry.title}>
                 {entry.title}
               </MenuItem>
-            ))}
+            )) || <MenuItem value="" />}
           </TextField>
-        )}
-        <Stack direction="row" columnGap={2}>
-          <Button
-            variant="contained"
-            color="success"
-            endIcon={<Add />}
-            onClick={() => setNewClassOpen(true)}
-          >
-            Add Class
-          </Button>
-          <Button
-            variant="outlined"
-            endIcon={<Description />}
-            onClick={toggleAssignmentModal}
-          >
-            Assignments
-          </Button>
-          <Button
-            variant="outlined"
-            endIcon={<Groups />}
-            onClick={toggleStudentModal}
-          >
-            Students
-          </Button>
+        </Box>
+        <Stack
+          direction="row"
+          columnGap={1}
+          flex={1}
+          justifyContent="flex-end"
+          mx="auto"
+        >
+          <Tooltip title="Manage classes" arrow disableInteractive>
+            <IconButton color="primary" onClick={() => setNewClassOpen(true)}>
+              <Class />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Manage class assignments" arrow disableInteractive>
+            <IconButton color="primary" onClick={toggleAssignmentModal}>
+              <Description />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Manage class students" arrow disableInteractive>
+            <IconButton color="primary" onClick={toggleStudentModal}>
+              <Groups />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Refetch data" arrow disableInteractive>
+            <span>
+              <IconButton
+                onClick={refetchData}
+                color="primary"
+                disabled={isFetching}
+              >
+                <Refresh />
+              </IconButton>
+            </span>
+          </Tooltip>
         </Stack>
       </Stack>
       <DataGrid
@@ -217,7 +238,7 @@ export default function Home() {
         columns={dataColumns}
         density="compact"
         autoHeight
-        // loading={studentsFetching || assignmentsFetching}
+        loading={isFetching}
         showCellVerticalBorder
         disableRowSelectionOnClick
         disableColumnSelector

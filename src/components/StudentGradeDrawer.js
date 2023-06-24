@@ -47,7 +47,7 @@ export default function StudentGradeDrawer({
       }
     });
 
-    patchStudent({ id: row.id, body: { ...row, grades: calcGrades } })
+    patchStudent({ id: row.id, body: { grades: calcGrades } })
       .then((resp) => {
         reset();
       })
@@ -68,8 +68,15 @@ export default function StudentGradeDrawer({
             <ChevronRight />
           </Button>
         </Tooltip>
-        <Stack m={2} spacing={1} minWidth={400}>
-          <Typography align="center" variant="h4">
+        <Stack
+          m={1}
+          ml={0}
+          spacing={1}
+          minWidth={350}
+          width="100%"
+          maxWidth={{ md: 400, sm: "80vw", xs: "80vw" }}
+        >
+          <Typography align="center" variant="h5">
             {row.name}
           </Typography>
           {assignments.length > 0 &&
@@ -79,12 +86,17 @@ export default function StudentGradeDrawer({
                   <Typography variant="body2" textTransform="uppercase" mb={1}>
                     {title}
                   </Typography>
-                  <Stack direction="row" spacing={1}>
+                  <Stack
+                    direction="row"
+                    rowGap={1}
+                    columnGap={1}
+                    flexWrap="wrap"
+                  >
                     {parts.map((part) => (
                       <TextField
                         key={`${part}-${id}`}
                         size="small"
-                        sx={{ width: 140 }}
+                        sx={{ width: "48.8%" }}
                         label={part}
                         type="number"
                         value={grades?.[id]?.[part] || ""}
