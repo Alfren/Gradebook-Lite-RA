@@ -11,25 +11,17 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useGetTeacherClassesQuery } from "../store/rtk";
-import {
-  Description,
-  Groups,
-  Refresh,
-  East,
-  Add,
-  Addchart,
-  Class,
-} from "@mui/icons-material";
+import { Description, Groups, Refresh, East, Class } from "@mui/icons-material";
 import StudentsModal from "../components/StudentsModal";
 import { useSnackbar } from "notistack";
 import AssignmentModal from "../components/AssignmentModal";
 import StudentGradeDrawer from "../components/StudentGradeDrawer";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
-import NewClassModal from "../components/NewClassModal";
+import ClassModal from "../components/ClassModal";
 
 export default function Home() {
-  const { closeSnackbar: msg } = useSnackbar();
+  const { enqueueSnackbar: msg } = useSnackbar();
   const { id: teacherId } = useSelector((state) => state.user);
   const {
     data: classes,
@@ -170,9 +162,10 @@ export default function Home() {
         setRow={setEditRow}
         assignments={currentClass?.assignments || []}
       />
-      <NewClassModal
+      <ClassModal
         open={newClassOpen}
         toggle={() => setNewClassOpen(!newClassOpen)}
+        classes={classes}
       />
       <Stack
         direction="row"

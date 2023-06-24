@@ -63,18 +63,29 @@ export default function StudentGradeDrawer({
   return (
     <Drawer anchor="right" open={open}>
       <Stack direction="row" height="100%">
-        <Tooltip title="Close" arrow disableInteractive placement="left">
+        <Tooltip
+          title="Close"
+          arrow
+          disableInteractive
+          placement="left"
+          sx={{
+            display: {
+              md: "block",
+              sm: "none",
+              xs: "none",
+            },
+          }}
+        >
           <Button onClick={toggle} color="inherit">
             <ChevronRight />
           </Button>
         </Tooltip>
         <Stack
           m={1}
-          ml={0}
           spacing={1}
           minWidth={350}
           width="100%"
-          maxWidth={{ md: 400, sm: "80vw", xs: "80vw" }}
+          maxWidth={{ md: 400 }}
         >
           <Typography align="center" variant="h5">
             {row.name}
@@ -96,7 +107,8 @@ export default function StudentGradeDrawer({
                       <TextField
                         key={`${part}-${id}`}
                         size="small"
-                        sx={{ width: "48.8%" }}
+                        sx={{ width: { md: "48.8%", sm: "100%" } }}
+                        fullWidth
                         label={part}
                         type="number"
                         value={grades?.[id]?.[part] || ""}
@@ -135,20 +147,20 @@ export default function StudentGradeDrawer({
             })}
           <Stack direction="row" spacing={3} pt={1}>
             <Button
-              onClick={handleSave}
-              color="success"
-              variant="contained"
-              fullWidth
-            >
-              Save Changes
-            </Button>
-            <Button
               onClick={handleCancel}
               variant="outlined"
               color="warning"
               fullWidth
             >
               Clear & Close
+            </Button>
+            <Button
+              onClick={handleSave}
+              color="success"
+              variant="contained"
+              fullWidth
+            >
+              Save Changes
             </Button>
           </Stack>
         </Stack>

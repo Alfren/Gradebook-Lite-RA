@@ -14,7 +14,7 @@ import { setUserAssets } from "../store/userSlice";
 import { East, West } from "@mui/icons-material";
 
 export default function Login() {
-  const { closeSnackbar: msg } = useSnackbar();
+  const { enqueueSnackbar: msg } = useSnackbar();
   const [username, setUsername] = useState("");
   const [rememberCheck, setRememberCheck] = useState(false);
   const [error, setError] = useState("");
