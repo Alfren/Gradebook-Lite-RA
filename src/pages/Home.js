@@ -53,9 +53,14 @@ export default function Home() {
   const [dataColumns, setDataColumns] = useState([]);
 
   useEffect(() => {
-    if (classSelectValue && !isFetching) {
-      setCurrentClass(classes.find(({ title }) => title === classSelectValue));
+    if (classSelectValue && !isFetching && classes.length > 0) {
+      const found = classes.find(({ title }) => title === classSelectValue);
+      if (found) setCurrentClass(found);
+    } else if (classSelectValue == "" && !isFetching && classes.length > 0) {
+      setClassSelectValue(classes[0]?.title);
+      setCurrentClass(classes[0]);
     }
+
     if (currentClass?.students?.length > 0 && !isFetching) {
       let arr = currentClass?.students?.map((entry) => {
         let temp = { ...entry };
@@ -103,7 +108,7 @@ export default function Home() {
               }
             });
             const result = total / currentClass?.assignments.length;
-            return isNaN(result) ? "" : total.toFixed(2);
+            return isNaN(result) ? "" : result.toFixed(2);
           },
         },
         {
@@ -204,14 +209,26 @@ export default function Home() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Manage class assignments" arrow disableInteractive>
-            <IconButton color="primary" onClick={toggleAssignmentModal}>
-              <Description />
-            </IconButton>
+            <span>
+              <IconButton
+                color="primary"
+                onClick={toggleAssignmentModal}
+                disabled={classes.length === 0 || !currentClass}
+              >
+                <Description />
+              </IconButton>
+            </span>
           </Tooltip>
           <Tooltip title="Manage class students" arrow disableInteractive>
-            <IconButton color="primary" onClick={toggleStudentModal}>
-              <Groups />
-            </IconButton>
+            <span>
+              <IconButton
+                color="primary"
+                onClick={toggleStudentModal}
+                disabled={classes.length === 0 || !currentClass}
+              >
+                <Groups />
+              </IconButton>
+            </span>
           </Tooltip>
           <Tooltip title="Refetch data" arrow disableInteractive>
             <span>

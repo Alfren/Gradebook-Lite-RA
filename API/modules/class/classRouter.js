@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const classModel = require("./classModel");
+const studentModel = require("../student/studentModel");
+const assignmentModel = require("../assignment/assignmentModel");
 
 router.get("/", async function (req, res) {
   try {
@@ -53,6 +55,20 @@ router.delete("/:id", async function (req, res) {
   } = req;
   try {
     const response = await classModel.findByIdAndDelete(id);
+    if (response?.students?.length > 0) {
+      await Promise.all([
+        ...response.students.map(
+          async (id) => await studentModel.findByIdAndDelete(id)
+        ),
+      ]);
+    }
+    if (response?.assignments?.length > 0) {
+      await Promise.all([
+        ...response.assignments.map(
+          async (id) => await assignmentModel.findByIdAndDelete(id)
+        ),
+      ]);
+    }
     res.send(response);
   } catch (error) {
     res.status(error.status || 500).send(error);

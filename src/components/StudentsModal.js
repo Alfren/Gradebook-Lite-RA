@@ -121,10 +121,13 @@ export default function StudentsModal({ students, open, toggle, classId }) {
             placeholder="Student Name"
             autoComplete="off"
             inputRef={studentInputRef}
+            fullWidth
+            required
           />
           <Button
             onClick={createStudent}
             variant="contained"
+            color="success"
             disabled={name === ""}
           >
             <Add />

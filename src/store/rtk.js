@@ -98,6 +98,13 @@ export const api = createApi({
       }),
       invalidatesTags: ["classes"],
     }),
+    deleteClass: builder.mutation({
+      query: (id) => ({
+        url: `/classes/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["classes"],
+    }),
   }),
 });
 
@@ -116,4 +123,5 @@ export const {
   useDeleteAccountMutation,
   useGetTeacherClassesQuery,
   useCreateClassMutation,
+  useDeleteClassMutation,
 } = api;
