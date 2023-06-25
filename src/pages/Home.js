@@ -24,7 +24,7 @@ export default function Home() {
   const { enqueueSnackbar: msg } = useSnackbar();
   const { id: teacherId } = useSelector((state) => state.user);
   const {
-    data: classes,
+    data: classes = [],
     refetch,
     isFetching,
   } = useGetTeacherClassesQuery(teacherId, {
@@ -59,6 +59,10 @@ export default function Home() {
     } else if (classSelectValue == "" && !isFetching && classes.length > 0) {
       setClassSelectValue(classes[0]?.title);
       setCurrentClass(classes[0]);
+    } else if (classes.length === 0) {
+      setClassSelectValue("");
+      setCurrentClass({});
+      setDataRows([]);
     }
 
     if (currentClass?.students?.length > 0 && !isFetching) {
@@ -254,6 +258,15 @@ export default function Home() {
         disableColumnSelector
         initialState={{
           pagination: { paginationModel: { pageSize: 25 } },
+        }}
+        slots={{
+          noRowsOverlay: () => (
+            <Stack height="100%" alignItems="center" justifyContent="center">
+              {classes.length > 0 && classSelectValue !== ""
+                ? "No students to display for the selected class"
+                : "Create your first class!"}
+            </Stack>
+          ),
         }}
       />
     </Container>

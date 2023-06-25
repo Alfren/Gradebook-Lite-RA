@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   InputLabel,
+  Paper,
   Stack,
   TextField,
   Typography,
@@ -20,7 +21,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [newAccountForm, setNewAccountForm] = useState(false);
   const [login, { isLoading: getTeacherIsloading }] = useGetTeacherMutation();
-  const [createTeacher, { isLoading: newTeacherisLoading }] =
+  const [createTeacher, { isLoading: newTeacherIsLoading }] =
     useCreateTeacherMutation();
 
   const dispatch = useDispatch();
@@ -79,7 +80,7 @@ export default function Login() {
   };
 
   return (
-    <Stack spacing={2} width={300} mx="auto">
+    <Stack spacing={2} width={300} mx="auto" p={2} component={Paper}>
       <Typography variant="h5" align="center">
         {newAccountForm ? "Create" : "Access"} My Gradebook
       </Typography>
@@ -98,7 +99,7 @@ export default function Login() {
         <>
           <Button
             variant="contained"
-            disabled={username === "" || newTeacherisLoading || permitted}
+            disabled={username === "" || newTeacherIsLoading || permitted}
             onClick={createNewTeacher}
           >
             Create Account

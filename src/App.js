@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import {
@@ -12,11 +12,36 @@ import { IconButton } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import TitleBar from "./components/TitleBar";
 import { Home, Error, Login } from "./pages/index";
+import { blue } from "@mui/material/colors";
 
 export default function App() {
   const [mode, setMode] = useState(true);
-  const toggleTheme = () => setMode(!mode);
-  const theme = createTheme({ palette: { mode: mode ? "dark" : "light" } });
+  const toggleTheme = () => {
+    const temp = !mode;
+    setMode(temp);
+    window.localStorage.setItem("gradebook-mode", temp);
+  };
+
+  useEffect(() => {
+    const storedMode = window.localStorage.getItem("gradebook-mode");
+    if (storedMode !== null) setMode(JSON.parse(storedMode));
+  }, []);
+
+  const theme = createTheme({
+    palette: {
+      mode: mode ? "dark" : "light",
+      background: { default: mode ? blue[900] : blue[400] },
+      overrides: {
+        MuiCssBaseline: {
+          "@global": {
+            "*": {
+              transition: "background 1s ease-in-out !important",
+            },
+          },
+        },
+      },
+    },
+  });
 
   const { permitted } = useSelector((state) => state.user);
 
