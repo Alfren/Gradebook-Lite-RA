@@ -52,6 +52,7 @@ export default function Home() {
   const [dataRows, setDataRows] = useState([]);
   const [dataColumns, setDataColumns] = useState([]);
 
+  // TODO: REWORK useEffect
   useEffect(() => {
     if (classSelectValue && !isFetching && classes.length > 0) {
       const found = classes.find(({ title }) => title === classSelectValue);
@@ -139,7 +140,7 @@ export default function Home() {
     } else {
       setDataColumns([{ field: "name", headerName: "Student", flex: 1 }]);
     }
-  }, [currentClass, isFetching]);
+  }, []); // currentClass, isFetching
 
   const changeClass = (e) => {
     const val = e.target.value;
@@ -149,6 +150,8 @@ export default function Home() {
       setClassSelectValue(obj.title);
     }
   };
+
+  console.log("HOME PAGE RENDER: " + Date.now());
 
   return (
     <Container component={Paper} sx={{ p: 2 }}>

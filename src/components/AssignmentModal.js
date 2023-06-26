@@ -102,25 +102,23 @@ export default function AssignmentModal({
             fullWidth
             autoComplete="off"
           />
-          <Stack direction="row" columnGap={1}>
-            <TextField
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              label="Type"
-              size="small"
-              fullWidth
-              select
-              sx={{ minWidth: 150 }}
-              helperText={
-                type === "Single"
-                  ? "Type 'Single' has only 1 grade"
-                  : "Type 'Multiple' can have sub-grades"
-              }
-            >
-              <MenuItem value="Single">Single</MenuItem>
-              <MenuItem value="Multiple">Multiple</MenuItem>
-            </TextField>
-          </Stack>
+          <TextField
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            label="Type"
+            size="small"
+            fullWidth
+            select
+            sx={{ minWidth: 150 }}
+            helperText={
+              type === "Single"
+                ? "Type 'Single' has only 1 grade"
+                : "Type 'Multiple' can have sub-grades"
+            }
+          >
+            <MenuItem value="Single">Single</MenuItem>
+            <MenuItem value="Multiple">Multiple</MenuItem>
+          </TextField>
           {type === "Multiple" && (
             <>
               {chipList.length > 0 && (

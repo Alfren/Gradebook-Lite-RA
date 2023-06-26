@@ -1,5 +1,6 @@
-import { Button, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router";
+import { Button, Stack, Typography } from "@mui/material";
+import { East } from "@mui/icons-material";
 
 export default function Error() {
   const navigate = useNavigate();
@@ -8,7 +9,9 @@ export default function Error() {
       <Typography variant="h4" align="center">
         Page Not Found
       </Typography>
-      <Button onClick={() => navigate("/")}>Go Home</Button>
+      <Button onClick={() => navigate("/")} variant="outlined" endIcon={East}>
+        Go Home
+      </Button>
     </Stack>
   );
 }

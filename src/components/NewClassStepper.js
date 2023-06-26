@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
 import { useCreateClassMutation } from "../store/rtk";
@@ -14,44 +14,20 @@ import {
   Box,
   Collapse,
   IconButton,
+  MenuItem,
+  Chip,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import { Add, Close } from "@mui/icons-material";
+import { Add, Close, Delete } from "@mui/icons-material";
 
 const steps = ["Class Name", "Assignments", "Students"];
 
 export default function NewClassStepper() {
   const { enqueueSnackbar: msg } = useSnackbar();
   const { id: teacherId } = useSelector((state) => state.user);
-  const [title, setTitle] = useState("");
-
-  const assignmentRef = useRef();
-  const [assignmentName, setAssignmentName] = useState("");
-  const [assignments, setAssignments] = useState([]);
-  const addAssignment = () => {
-    setAssignments([...assignments, assignmentName]);
-    setAssignmentName("");
-    assignmentRef.current.focus();
-  };
-  const removeAssignment = (i) => {
-    let arr = [...assignments];
-    arr.splice(i, 1);
-    setAssignments(arr);
-  };
-
-  const studentRef = useRef();
-  const [studentName, setStudentName] = useState("");
-  const [students, setStudents] = useState([]);
-  const addStudent = () => {
-    setStudents([...students, studentName]);
-    setStudentName("");
-  };
-  const removeStudent = (i) => {
-    let arr = [...students];
-    arr.splice(i, 1);
-    setStudents(arr);
-  };
-
   const [postClass, { isLoading }] = useCreateClassMutation();
 
   const createClass = () => {
@@ -68,25 +44,83 @@ export default function NewClassStepper() {
       });
   };
 
+  const [title, setTitle] = useState("");
+
   const [activeStep, setActiveStep] = useState(0);
   const [completed, setCompleted] = useState({});
+  const [assignmentName, setAssignmentName] = useState("");
+  const [assignments, setAssignments] = useState([]);
 
-  const totalSteps = () => steps.length;
-  const completedSteps = () => Object.keys(completed).length;
-  const isLastStep = () => activeStep === totalSteps() - 1;
-  const allStepsCompleted = () => completedSteps() === totalSteps();
+  const [studentName, setStudentName] = useState("");
+  const [students, setStudents] = useState([]);
+
+  const assignmentRef = useRef();
+  const partsRef = useRef();
+  const studentRef = useRef();
+
+  const addAssignment = () => {
+    let temp = { title: assignmentName, type, teacherId };
+    if (type === "Multiple") temp.parts = parts;
+    setAssignments([...assignments, temp]);
+    setAssignmentName("");
+    setParts([]);
+    setNewPartTitle("");
+    setType("Single");
+    assignmentRef.current.focus();
+  };
+
+  const removeAssignment = (i) => {
+    let arr = [...assignments];
+    arr.splice(i, 1);
+    setAssignments(arr);
+  };
+
+  const addStudent = () => {
+    setStudents([...students, studentName]);
+    setStudentName("");
+  };
+
+  const removeStudent = (i) => {
+    let arr = [...students];
+    arr.splice(i, 1);
+    setStudents(arr);
+  };
+
+  const [type, setType] = useState("Single");
+
+  const [newPartTitle, setNewPartTitle] = useState("");
+  const [parts, setParts] = useState([]);
+  const [chipList, setChipList] = useState([]);
+
+  const handleAddPart = () => {
+    setParts([...parts, newPartTitle]);
+    setNewPartTitle("");
+    partsRef.current.focus();
+  };
+
+  useEffect(() => {
+    if (assignments.length === 0) return;
+    let list = [];
+    assignments.forEach(({ parts: entry }) => {
+      if (entry && entry.length > 0) {
+        entry.forEach((part) => {
+          if (!list.includes(part) && !parts.includes(part)) list.push(part);
+        });
+      }
+    });
+    setChipList(list);
+  }, [assignments, parts]);
 
   const handleNext = () => {
     const newActiveStep =
-      isLastStep() && !allStepsCompleted()
+      activeStep === steps.length - 1 &&
+      !Object.keys(completed).length === steps.length
         ? steps.findIndex((step, i) => !(i in completed))
         : activeStep + 1;
     setActiveStep(newActiveStep);
   };
 
-  const handleBack = () =>
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  const handleStep = (step) => setActiveStep(step);
+  const handleBack = () => setActiveStep(activeStep - 1);
 
   const handleComplete = () => {
     const newCompleted = completed;
@@ -114,121 +148,248 @@ export default function NewClassStepper() {
               },
             }}
           >
-            <StepButton onClick={() => handleStep(index)}>{label}</StepButton>
+            <StepButton onClick={() => setActiveStep(index)}>
+              {label}
+            </StepButton>
           </Step>
         ))}
       </Stepper>
-      <Collapse in={activeStep === 0}>
-        <Box component={Paper} mx={1} p={1}>
-          <Typography>New Class</Typography>
-          <Stack spacing={1} p={1} m={1}>
-            <Stack direction="row">
+      <Box>
+        <Collapse in={activeStep === 0}>
+          <Box component={Paper} mx={1} p={1}>
+            <Typography>New Class</Typography>
+            <Stack spacing={1} p={1} m={1}>
+              <Stack direction="row" alignItems="center">
+                <TextField
+                  label="Class Name"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  disabled={isLoading}
+                  size="small"
+                  fullWidth
+                  required
+                />
+              </Stack>
+            </Stack>
+          </Box>
+        </Collapse>
+        <Collapse in={activeStep === 1}>
+          <Box component={Paper} m={1} p={1}>
+            <Typography>Assignments</Typography>
+            {assignments.length > 0 && (
+              <Stack p={1} m={1}>
+                {assignments.map((entry, i) => (
+                  <Box key={i}>
+                    <Typography>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => removeAssignment(i)}
+                      >
+                        <Close />
+                      </IconButton>
+                      <Typography color="text.secondary" component="span">
+                        {i + 1}.
+                      </Typography>{" "}
+                      {entry.title}
+                    </Typography>
+                    {entry?.parts && (
+                      <Typography color="text.secondary" ml={7}>
+                        {entry.parts.map(
+                          (item, t) =>
+                            `${item}${entry.parts.length - 1 === t ? "" : ", "}`
+                        )}
+                      </Typography>
+                    )}
+                  </Box>
+                ))}
+              </Stack>
+            )}
+            <Stack spacing={2} component={Paper} p={1}>
+              <Typography variant="h6" align="center">
+                New Assignment
+              </Typography>
               <TextField
-                label="Class Name"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={isLoading}
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                label="Type"
+                size="small"
+                fullWidth
+                select
+                sx={{ minWidth: 150 }}
+                helperText={
+                  type === "Single"
+                    ? "Type 'Single' has only 1 grade"
+                    : "Type 'Multiple' can have sub-grades"
+                }
+              >
+                <MenuItem value="Single">Single</MenuItem>
+                <MenuItem value="Multiple">Multiple</MenuItem>
+              </TextField>
+              <TextField
+                value={assignmentName}
+                onChange={(e) => setAssignmentName(e.target.value)}
+                label="Title"
+                size="small"
+                placeholder="Assignment title"
+                fullWidth
+                autoComplete="off"
+                inputRef={assignmentRef}
+              />
+              {type === "Multiple" && (
+                <>
+                  {chipList.length > 0 && (
+                    <Paper elevation={6} sx={{ p: 1 }}>
+                      <Typography variant="body2" pb={1}>
+                        Category Suggestions
+                      </Typography>
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        {chipList.map((val) => (
+                          <Chip
+                            label={val}
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => {
+                              setChipList(chipList.filter((el) => el !== val));
+                              setParts([...parts, val]);
+                            }}
+                            key={val}
+                          />
+                        ))}
+                      </Stack>
+                    </Paper>
+                  )}
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <TextField
+                      value={newPartTitle}
+                      onChange={(e) => setNewPartTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newPartTitle !== "")
+                          handleAddPart();
+                      }}
+                      label="Assignment Category Title"
+                      size="small"
+                      inputRef={partsRef}
+                      fullWidth
+                    />
+                    <Button
+                      onClick={handleAddPart}
+                      variant="contained"
+                      color="success"
+                      size="small"
+                      disabled={
+                        newPartTitle === "" || parts.includes(newPartTitle)
+                      }
+                    >
+                      <Add />
+                    </Button>
+                  </Stack>
+                  {type === "Multiple" && (
+                    <List dense component={Paper}>
+                      {parts.length === 0 && (
+                        <ListItem>
+                          <ListItemText align="center">
+                            <Typography color="text.secondary">
+                              Add assignment categories
+                            </Typography>
+                          </ListItemText>
+                        </ListItem>
+                      )}
+                      {parts.map((title, i) => {
+                        return (
+                          <ListItem
+                            key={i}
+                            sx={{ ":hover": { background: "#44444480" } }}
+                          >
+                            <ListItemText sx={{ flex: 1 }}>
+                              <Typography
+                                component="span"
+                                color="text.secondary"
+                              >
+                                {i + 1}.{" "}
+                              </Typography>
+                              {title}
+                            </ListItemText>
+                            <IconButton
+                              color="error"
+                              onClick={() =>
+                                setParts([
+                                  ...parts.filter((el) => el !== title),
+                                ])
+                              }
+                            >
+                              <Delete />
+                            </IconButton>
+                          </ListItem>
+                        );
+                      })}
+                    </List>
+                  )}
+                </>
+              )}
+              <Button
+                variant="contained"
+                color="success"
+                onClick={addAssignment}
+                disabled={
+                  assignmentName === "" ||
+                  (type === "Multiple" && parts.length === 0)
+                }
+                endIcon={<Add />}
+              >
+                Create Assignment
+              </Button>
+            </Stack>
+          </Box>
+        </Collapse>
+        <Collapse in={activeStep === 2}>
+          <Box component={Paper} m={1} p={1}>
+            <Typography>Students</Typography>
+            {students.length > 0 && (
+              <Stack p={1} m={1} alignItems="center">
+                {students.map((entry, i) => (
+                  <Typography key={i}>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => removeStudent(i)}
+                    >
+                      <Close />
+                    </IconButton>
+                    <Typography color="text.secondary" component="span">
+                      {i + 1}.
+                    </Typography>{" "}
+                    {entry}
+                  </Typography>
+                ))}
+              </Stack>
+            )}
+            <Stack spacing={1} p={1} m={1} direction="row" alignItems="center">
+              <TextField
+                label="Student Name"
                 size="small"
                 fullWidth
                 required
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (studentName !== "" && e.key === "Enter") addStudent();
+                }}
+                inputRef={studentRef}
               />
+              <Button
+                variant="contained"
+                disabled={studentName === ""}
+                color="success"
+                onClick={addStudent}
+              >
+                <Add />
+              </Button>
             </Stack>
-          </Stack>
-        </Box>
-      </Collapse>
-      <Collapse in={activeStep === 1}>
-        <Box component={Paper} m={1} p={1}>
-          <Typography>Assignments</Typography>
-          {assignments.length > 0 && (
-            <Stack p={1} m={1}>
-              {assignments.map((entry, i) => (
-                <Typography key={i}>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => removeAssignment(i)}
-                  >
-                    <Close />
-                  </IconButton>
-                  <Typography color="text.secondary" component="span">
-                    {i + 1}.
-                  </Typography>{" "}
-                  {entry}
-                </Typography>
-              ))}
-            </Stack>
-          )}
-          <Stack spacing={1} p={1} m={1} direction="row">
-            <TextField
-              label="Assignment Title"
-              size="small"
-              fullWidth
-              required
-              value={assignmentName}
-              onChange={(e) => setAssignmentName(e.target.value)}
-              onKeyDown={(e) => {
-                if (assignmentName !== "" && e.key === "Enter") addAssignment();
-              }}
-              inputRef={assignmentRef}
-            />
-            <Button
-              variant="contained"
-              disabled={assignmentName === ""}
-              color="success"
-              onClick={addAssignment}
-            >
-              <Add />
-            </Button>
-          </Stack>
-        </Box>
-      </Collapse>
-      <Collapse in={activeStep === 2}>
-        <Box component={Paper} m={1} p={1}>
-          <Typography>Students</Typography>
-          {students.length > 0 && (
-            <Stack p={1} m={1}>
-              {students.map((entry, i) => (
-                <Typography key={i}>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => removeStudent(i)}
-                  >
-                    <Close />
-                  </IconButton>
-                  <Typography color="text.secondary" component="span">
-                    {i + 1}.
-                  </Typography>{" "}
-                  {entry}
-                </Typography>
-              ))}
-            </Stack>
-          )}
-          <Stack spacing={1} p={1} m={1} direction="row">
-            <TextField
-              label="Student Name"
-              size="small"
-              fullWidth
-              required
-              value={studentName}
-              onChange={(e) => setStudentName(e.target.value)}
-              onKeyDown={(e) => {
-                if (studentName !== "" && e.key === "Enter") addStudent();
-              }}
-              inputRef={studentRef}
-            />
-            <Button
-              variant="contained"
-              disabled={studentName === ""}
-              color="success"
-              onClick={addStudent}
-            >
-              <Add />
-            </Button>
-          </Stack>
-        </Box>
-      </Collapse>
-      <Stack direction="row" m={4} mb={2}>
+          </Box>
+        </Collapse>
+      </Box>
+      <Stack direction="row" mx={4} mb={2}>
         <Button
           color="inherit"
           disabled={activeStep === 0}
