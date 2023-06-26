@@ -31,15 +31,6 @@ export default function App() {
     palette: {
       mode: mode ? "dark" : "light",
       background: { default: mode ? blue[900] : blue[400] },
-      overrides: {
-        MuiCssBaseline: {
-          "@global": {
-            "*": {
-              transition: "background 1s ease-in-out !important",
-            },
-          },
-        },
-      },
     },
   });
 
