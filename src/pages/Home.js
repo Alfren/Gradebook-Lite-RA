@@ -31,11 +31,6 @@ export default function Home() {
     skip: !teacherId,
   });
 
-  const refetchData = () => {
-    refetch();
-    msg("It worked. Data refreshed.", { variant: "success" });
-  };
-
   const [studentModal, setStudentModal] = useState(false);
   const toggleStudentModal = () => setStudentModal(!studentModal);
   const [assignmentModal, setAssignmentModal] = useState(false);
@@ -52,8 +47,7 @@ export default function Home() {
   const [dataRows, setDataRows] = useState([]);
   const [dataColumns, setDataColumns] = useState([]);
 
-  // TODO: REWORK useEffect
-  useEffect(() => {
+  const dataGridReload = () => {
     if (classSelectValue && !isFetching && classes.length > 0) {
       const found = classes.find(({ title }) => title === classSelectValue);
       if (found) setCurrentClass(found);
@@ -140,6 +134,9 @@ export default function Home() {
     } else {
       setDataColumns([{ field: "name", headerName: "Student", flex: 1 }]);
     }
+  };
+  useEffect(() => {
+    dataGridReload();
   }, []); // currentClass, isFetching
 
   const changeClass = (e) => {
@@ -148,7 +145,18 @@ export default function Home() {
     if (obj.id) {
       setCurrentClass(obj);
       setClassSelectValue(obj.title);
+      dataGridReload();
     }
+  };
+
+  const refetchData = () => {
+    refetch()
+      .then(({ error }) => {
+        if (error) throw new Error(error);
+        dataGridReload();
+      })
+      .catch((error) => console.error(error));
+    msg("It worked. Data refreshed.", { variant: "success" });
   };
 
   console.log("HOME PAGE RENDER: " + Date.now());

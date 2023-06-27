@@ -19,6 +19,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Divider,
 } from "@mui/material";
 import { blue } from "@mui/material/colors";
 import { Add, Close, Delete } from "@mui/icons-material";
@@ -65,7 +66,7 @@ export default function NewClassStepper() {
     setAssignmentName("");
     setParts([]);
     setNewPartTitle("");
-    setType("Single");
+    // setType("Single");
     assignmentRef.current.focus();
   };
 
@@ -206,36 +207,40 @@ export default function NewClassStepper() {
               </Stack>
             )}
             <Stack spacing={2} component={Paper} p={1}>
-              <Typography variant="h6" align="center">
-                New Assignment
-              </Typography>
-              <TextField
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                label="Type"
-                size="small"
-                fullWidth
-                select
-                sx={{ minWidth: 150 }}
-                helperText={
-                  type === "Single"
-                    ? "Type 'Single' has only 1 grade"
-                    : "Type 'Multiple' can have sub-grades"
-                }
-              >
-                <MenuItem value="Single">Single</MenuItem>
-                <MenuItem value="Multiple">Multiple</MenuItem>
-              </TextField>
-              <TextField
-                value={assignmentName}
-                onChange={(e) => setAssignmentName(e.target.value)}
-                label="Title"
-                size="small"
-                placeholder="Assignment title"
-                fullWidth
-                autoComplete="off"
-                inputRef={assignmentRef}
-              />
+              <Divider>
+                <Typography variant="h6" align="center">
+                  New Assignment
+                </Typography>
+              </Divider>
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  label="Type"
+                  size="small"
+                  fullWidth
+                  select
+                  sx={{ minWidth: 150 }}
+                  helperText={
+                    type === "Single"
+                      ? "Type 'Single' has only 1 grade"
+                      : "Type 'Multiple' can have sub-grades"
+                  }
+                >
+                  <MenuItem value="Single">Single</MenuItem>
+                  <MenuItem value="Multiple">Multiple</MenuItem>
+                </TextField>
+                <TextField
+                  value={assignmentName}
+                  onChange={(e) => setAssignmentName(e.target.value)}
+                  label="Title"
+                  size="small"
+                  placeholder="Assignment title"
+                  fullWidth
+                  autoComplete="off"
+                  inputRef={assignmentRef}
+                />
+              </Stack>
               {type === "Multiple" && (
                 <>
                   {chipList.length > 0 && (
@@ -259,12 +264,16 @@ export default function NewClassStepper() {
                       </Stack>
                     </Paper>
                   )}
-                  <Stack direction="row" spacing={2} alignItems="center">
+                  <Stack direction="row" spacing={2}>
                     <TextField
                       value={newPartTitle}
                       onChange={(e) => setNewPartTitle(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && newPartTitle !== "")
+                        if (
+                          e.key === "Enter" &&
+                          newPartTitle !== "" &&
+                          !parts.includes(newPartTitle)
+                        )
                           handleAddPart();
                       }}
                       label="Assignment Category Title"
@@ -285,45 +294,30 @@ export default function NewClassStepper() {
                     </Button>
                   </Stack>
                   {type === "Multiple" && (
-                    <List dense component={Paper}>
-                      {parts.length === 0 && (
-                        <ListItem>
-                          <ListItemText align="center">
-                            <Typography color="text.secondary">
-                              Add assignment categories
-                            </Typography>
-                          </ListItemText>
-                        </ListItem>
-                      )}
-                      {parts.map((title, i) => {
-                        return (
-                          <ListItem
-                            key={i}
-                            sx={{ ":hover": { background: "#44444480" } }}
+                    <Box component={Paper} elevation={4} p={1}>
+                      <Typography color="text.secondary">
+                        Add assignment categories{" "}
+                        {parts.length > 0 && (
+                          <Button
+                            onClick={() => setParts([])}
+                            size="small"
+                            sx={{ float: "right" }}
                           >
-                            <ListItemText sx={{ flex: 1 }}>
-                              <Typography
-                                component="span"
-                                color="text.secondary"
-                              >
-                                {i + 1}.{" "}
-                              </Typography>
-                              {title}
-                            </ListItemText>
-                            <IconButton
-                              color="error"
-                              onClick={() =>
-                                setParts([
-                                  ...parts.filter((el) => el !== title),
-                                ])
-                              }
-                            >
-                              <Delete />
-                            </IconButton>
-                          </ListItem>
-                        );
-                      })}
-                    </List>
+                            clear
+                          </Button>
+                        )}
+                      </Typography>
+                      <Stack direction="row" flexWrap="wrap" gap={0.75}>
+                        {parts.map((title, i) => (
+                          <Chip
+                            label={title}
+                            onDelete={() =>
+                              setParts([...parts.filter((el) => el !== title)])
+                            }
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
                   )}
                 </>
               )}
@@ -402,7 +396,9 @@ export default function NewClassStepper() {
         {activeStep !== steps.length - 1 ? (
           <Button onClick={handleComplete}>Next</Button>
         ) : (
-          <Button onClick={() => {}}>Create Class</Button>
+          <Button onClick={() => {}} color="success">
+            Create Class
+          </Button>
         )}
       </Stack>
     </>
