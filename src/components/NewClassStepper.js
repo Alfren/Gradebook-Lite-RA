@@ -16,23 +16,20 @@ import {
   IconButton,
   MenuItem,
   Chip,
-  List,
-  ListItem,
-  ListItemText,
   Divider,
 } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import { Add, Close, Delete } from "@mui/icons-material";
+import { Add, Close } from "@mui/icons-material";
 
 const steps = ["Class Name", "Assignments", "Students"];
 
-export default function NewClassStepper() {
+export default function NewClassStepper({ toggle }) {
   const { enqueueSnackbar: msg } = useSnackbar();
   const { id: teacherId } = useSelector((state) => state.user);
   const [postClass, { isLoading }] = useCreateClassMutation();
 
   const createClass = () => {
-    postClass({ title, teacherId })
+    postClass({ title, teacherId, students, assignments })
       .then(({ error }) => {
         if (error) throw new Error(error.message);
         toggle();
@@ -41,7 +38,7 @@ export default function NewClassStepper() {
       })
       .catch((error) => {
         console.error(error);
-        msg("Operation failed", { variant: "error" });
+        msg("Class creation failed", { variant: "error" });
       });
   };
 
@@ -60,13 +57,12 @@ export default function NewClassStepper() {
   const studentRef = useRef();
 
   const addAssignment = () => {
-    let temp = { title: assignmentName, type, teacherId };
+    let temp = { title: assignmentName, type };
     if (type === "Multiple") temp.parts = parts;
     setAssignments([...assignments, temp]);
     setAssignmentName("");
     setParts([]);
     setNewPartTitle("");
-    // setType("Single");
     assignmentRef.current.focus();
   };
 
@@ -130,18 +126,17 @@ export default function NewClassStepper() {
     handleNext();
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-    setCompleted({});
-  };
+  // const handleReset = () => {
+  //   setActiveStep(0);
+  //   setCompleted({});
+  // };
 
   return (
     <>
       <Stepper nonLinear activeStep={activeStep} sx={{ mb: 3 }}>
         {steps.map((label, index) => (
           <Step
-            key={label}
-            // completed={completed[index]}
+            key={index}
             sx={{
               mx: 3,
               "* svg": {
@@ -249,8 +244,9 @@ export default function NewClassStepper() {
                         Category Suggestions
                       </Typography>
                       <Stack direction="row" spacing={1} alignItems="center">
-                        {chipList.map((val) => (
+                        {chipList.map((val, i) => (
                           <Chip
+                            key={i}
                             label={val}
                             variant="outlined"
                             color="primary"
@@ -258,7 +254,6 @@ export default function NewClassStepper() {
                               setChipList(chipList.filter((el) => el !== val));
                               setParts([...parts, val]);
                             }}
-                            key={val}
                           />
                         ))}
                       </Stack>
@@ -310,6 +305,7 @@ export default function NewClassStepper() {
                       <Stack direction="row" flexWrap="wrap" gap={0.75}>
                         {parts.map((title, i) => (
                           <Chip
+                            key={i}
                             label={title}
                             onDelete={() =>
                               setParts([...parts.filter((el) => el !== title)])
@@ -396,7 +392,7 @@ export default function NewClassStepper() {
         {activeStep !== steps.length - 1 ? (
           <Button onClick={handleComplete}>Next</Button>
         ) : (
-          <Button onClick={() => {}} color="success">
+          <Button onClick={createClass} color="success">
             Create Class
           </Button>
         )}

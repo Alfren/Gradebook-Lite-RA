@@ -27,11 +27,27 @@ router.get("/:teacherId", async function (req, res) {
 });
 
 router.post("/", async function (req, res) {
-  const { body } = req;
+  const {
+    body: { title, teacherId, students, assignments },
+  } = req;
   try {
-    const response = await classModel.create(body);
-    res.send(response);
+    const newStudents = await Promise.all([
+      ...students.map(
+        async (name) => await studentModel.create({ name, grades: {} })
+      ),
+    ]);
+    const newAssignments = await Promise.all([
+      ...assignments.map(async (entry) => await assignmentModel.create(entry)),
+    ]);
+    await classModel.create({
+      title,
+      teacherId,
+      students: newStudents.map(({ id }) => id),
+      assignments: newAssignments.map(({ id }) => id),
+    });
+    res.send();
   } catch (error) {
+    console.error(error);
     res.status(error.status || 500).send(error);
   }
 });

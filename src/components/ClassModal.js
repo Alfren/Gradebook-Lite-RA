@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import CloseButton from "./CloseButton";
 import { useDeleteClassMutation } from "../store/rtk";
-import { Delete } from "@mui/icons-material";
+import { Delete, KeyboardArrowDown } from "@mui/icons-material";
 import { useSnackbar } from "notistack";
 import ConfirmDialog from "./ConfirmDialog";
 import NewClassStepper from "./NewClassStepper";
@@ -47,7 +47,7 @@ export default function ClassModal({ open, toggle, classes }) {
         MANAGE CLASSES
       </Typography>
       <Stack sx={{ p: 1 }}>
-        {classes.length > 0 &&
+        {classes.length > 0 ? (
           classes?.map(({ title, id, students, assignments }) => {
             let totalGrades = [];
             students.forEach(({ grades }) => {
@@ -132,9 +132,17 @@ export default function ClassModal({ open, toggle, classes }) {
                 </Box>
               </Stack>
             );
-          })}
+          })
+        ) : (
+          <Typography pt={2} color="text.secondary">
+            Create your first class!
+            <KeyboardArrowDown
+              sx={{ display: "block", fontSize: 40, width: 170 }}
+            />
+          </Typography>
+        )}
       </Stack>
-      <NewClassStepper />
+      <NewClassStepper toggle={toggle} />
     </Dialog>
   );
 }
