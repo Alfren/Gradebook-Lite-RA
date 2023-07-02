@@ -12,7 +12,6 @@ const StudentSchema = new Schema(
       required: true,
       default: new Object(),
     },
-    teacherId: { type: String, required: true },
   },
   {
     timestamps: true,

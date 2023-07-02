@@ -23,7 +23,12 @@ import ConfirmDialog from "./ConfirmDialog";
 import CloseButton from "./CloseButton";
 import { useSelector } from "react-redux";
 
-export default function AssignmentModal({ assignments, open, toggle }) {
+export default function AssignmentModal({
+  assignments,
+  open,
+  toggle,
+  classId,
+}) {
   const { id: teacherId } = useSelector((state) => state.user);
   const [postAssignment] = useCreateAssignmentMutation();
   const [deleteAssignment] = useDeleteAssignmentMutation();
@@ -37,7 +42,7 @@ export default function AssignmentModal({ assignments, open, toggle }) {
   const [confirmData, setConfirmData] = useState({});
 
   const createAssignment = () => {
-    let body = { title: assignment, type, teacherId };
+    let body = { title: assignment, type, teacherId, classId };
     if (type === "Multiple") body.parts = parts;
     postAssignment(body)
       .then(() => {
@@ -97,25 +102,23 @@ export default function AssignmentModal({ assignments, open, toggle }) {
             fullWidth
             autoComplete="off"
           />
-          <Stack direction="row" columnGap={1}>
-            <TextField
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              label="Type"
-              size="small"
-              fullWidth
-              select
-              sx={{ minWidth: 150 }}
-              helperText={
-                type === "Single"
-                  ? "Type 'Single' has only 1 grade"
-                  : "Type 'Multiple' can have sub-grades"
-              }
-            >
-              <MenuItem value="Single">Single</MenuItem>
-              <MenuItem value="Multiple">Multiple</MenuItem>
-            </TextField>
-          </Stack>
+          <TextField
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            label="Type"
+            size="small"
+            fullWidth
+            select
+            sx={{ minWidth: 150 }}
+            helperText={
+              type === "Single"
+                ? "Type 'Single' has only 1 grade"
+                : "Type 'Multiple' can have sub-grades"
+            }
+          >
+            <MenuItem value="Single">Single</MenuItem>
+            <MenuItem value="Multiple">Multiple</MenuItem>
+          </TextField>
           {type === "Multiple" && (
             <>
               {chipList.length > 0 && (
@@ -245,7 +248,7 @@ export default function AssignmentModal({ assignments, open, toggle }) {
                         description: `Delete ${title}?`,
                         actions: [
                           {
-                            action: () => deleteAssignment(id),
+                            action: () => deleteAssignment({ id, classId }),
                             color: "error",
                             label: "DELETE",
                           },

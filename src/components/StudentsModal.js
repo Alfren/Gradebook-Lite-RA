@@ -19,7 +19,8 @@ import {
 import { Add, Delete } from "@mui/icons-material";
 import ConfirmDialog from "./ConfirmDialog";
 import { useSelector } from "react-redux";
-export default function StudentsModal({ students, open, toggle }) {
+
+export default function StudentsModal({ students, open, toggle, classId }) {
   const [postStudent] = useCreateStudentMutation();
   const [deleteStudent] = useDeleteStudentMutation();
   const [name, setName] = useState("");
@@ -29,7 +30,7 @@ export default function StudentsModal({ students, open, toggle }) {
   const { id: teacherId } = useSelector((state) => state.user);
 
   const createStudent = () => {
-    postStudent({ name, teacherId })
+    postStudent({ name, teacherId, classId })
       .then((resp) => {
         setName("");
       })
@@ -53,50 +54,60 @@ export default function StudentsModal({ students, open, toggle }) {
           STUDENTS
         </Typography>
         <List>
-          {students.map(({ id, name, grades }, i) => {
-            let list = [];
-            Object.values(JSON.parse(JSON.stringify(grades))).forEach((val) => {
-              typeof val === "object" ? list.push(val.TOTAL) : list.push(val);
-            });
-            const total =
-              list.length > 0
-                ? list.reduce((sum, value) => sum + value) / list.length
-                : 0;
-            return (
-              <ListItem key={id}>
-                <ListItemAvatar sx={{ minWidth: "unset" }}>
-                  <Typography color="text.secondary" component="span" pr={1}>
-                    {i + 1}.
-                  </Typography>
-                </ListItemAvatar>
-                <ListItemText flex={1}>
-                  {name}
-                  <Typography variant="caption" pl={2}>
-                    ({total.toFixed(2)})
-                  </Typography>
-                </ListItemText>
-                <IconButton
-                  color="error"
-                  onClick={() => {
-                    setConfirmData({
-                      title: "Remove student",
-                      description: `Delete ${name} records?`,
-                      actions: [
-                        {
-                          action: () => deleteStudent(id),
-                          color: "error",
-                          label: "DELETE",
-                        },
-                      ],
-                    });
-                    setConfirmOpen(true);
-                  }}
-                >
-                  <Delete />
-                </IconButton>
-              </ListItem>
-            );
-          })}
+          {students.length > 0 ? (
+            students.map(({ id, name, grades }, i) => {
+              let list = [];
+              Object.values(JSON.parse(JSON.stringify(grades))).forEach(
+                (val) => {
+                  typeof val === "object"
+                    ? list.push(val.TOTAL)
+                    : list.push(val);
+                }
+              );
+              const total =
+                list.length > 0
+                  ? list.reduce((sum, value) => sum + value) / list.length
+                  : 0;
+              return (
+                <ListItem key={id}>
+                  <ListItemAvatar sx={{ minWidth: "unset" }}>
+                    <Typography color="text.secondary" component="span" pr={1}>
+                      {i + 1}.
+                    </Typography>
+                  </ListItemAvatar>
+                  <ListItemText flex={1}>
+                    {name}
+                    <Typography variant="caption" pl={2}>
+                      ({total.toFixed(2)})
+                    </Typography>
+                  </ListItemText>
+                  <IconButton
+                    color="error"
+                    onClick={() => {
+                      setConfirmData({
+                        title: "Remove student",
+                        description: `Delete ${name} records?`,
+                        actions: [
+                          {
+                            action: () => deleteStudent({ id, classId }),
+                            color: "error",
+                            label: "DELETE",
+                          },
+                        ],
+                      });
+                      setConfirmOpen(true);
+                    }}
+                  >
+                    <Delete />
+                  </IconButton>
+                </ListItem>
+              );
+            })
+          ) : (
+            <Typography variant="h6" align="center" color="text.secondary">
+              Class is empty!
+            </Typography>
+          )}
         </List>
         <Stack direction="row" spacing={1}>
           <TextField
@@ -110,10 +121,13 @@ export default function StudentsModal({ students, open, toggle }) {
             placeholder="Student Name"
             autoComplete="off"
             inputRef={studentInputRef}
+            fullWidth
+            required
           />
           <Button
             onClick={createStudent}
             variant="contained"
+            color="success"
             disabled={name === ""}
           >
             <Add />

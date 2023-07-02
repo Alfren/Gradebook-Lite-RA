@@ -1,41 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Box,
   Button,
   Container,
   IconButton,
+  MenuItem,
   Paper,
   Stack,
+  TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
-import { useGetAssignmentsQuery, useGetStudentsQuery } from "../store/rtk";
-import { Description, Groups, Refresh, East } from "@mui/icons-material";
+import { useGetTeacherClassesQuery } from "../store/rtk";
+import { Description, Groups, Refresh, East, Class } from "@mui/icons-material";
 import StudentsModal from "../components/StudentsModal";
 import { useSnackbar } from "notistack";
 import AssignmentModal from "../components/AssignmentModal";
 import StudentGradeDrawer from "../components/StudentGradeDrawer";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
+import ClassModal from "../components/ClassModal";
 
 export default function Home() {
-  const { closeSnackbar: msg } = useSnackbar();
+  const { enqueueSnackbar: msg } = useSnackbar();
   const { id: teacherId } = useSelector((state) => state.user);
   const {
-    data: students = [],
-    refetch: refetchStudents,
-    isFetching: studentsFetching,
-  } = useGetStudentsQuery(teacherId, { skip: !teacherId });
+    data: classes = [],
+    refetch,
+    isFetching,
+  } = useGetTeacherClassesQuery(teacherId, {
+    skip: !teacherId,
+  });
 
-  const {
-    data: assignments = [],
-    refetch: refetchAssignments,
-    isFetching: assignmentsFetching,
-  } = useGetAssignmentsQuery(teacherId, { skip: !teacherId });
-
-  const refetchData = () => {
-    refetchStudents();
-    refetchAssignments();
-    msg("It worked. Data refreshed.", { variant: "success" });
-  };
   const [studentModal, setStudentModal] = useState(false);
   const toggleStudentModal = () => setStudentModal(!studentModal);
   const [assignmentModal, setAssignmentModal] = useState(false);
@@ -44,132 +40,262 @@ export default function Home() {
   const [editRow, setEditRow] = useState({});
   const [editOpen, setEditOpen] = useState(false);
 
-  const dataRows = students.map((entry) => {
-    let temp = { ...entry };
-    Object.entries(entry.grades).forEach(([key, val]) => {
-      const assign = assignments.find(
-        ({ id }) => key.toString() === id.toString()
-      );
-      temp[assign?.title] = val;
-    });
-    return temp;
-  });
+  const [newClassOpen, setNewClassOpen] = useState(false);
 
-  const dataColumns = [
-    { field: "name", headerName: "Student", flex: 1 },
-    ...assignments.map(({ title, type }) => ({
-      field: title,
-      headerAlign: "center",
-      align: "center",
-      flex: 1,
-      gradeType: type,
-      valueGetter: ({ value, colDef }) =>
-        Number(colDef?.gradeType === "Multiple" ? value?.TOTAL : value) || null,
-      type: "number",
-    })),
-    {
-      field: "TOTAL",
-      headerName: "Final Grade",
-      align: "center",
-      valueGetter: ({ row }) => {
-        let total = 0;
-        assignments.forEach((val) => {
-          if (row[val.title] !== undefined) {
-            if (typeof row[val.title] === "object") {
-              total = total + row[val.title].TOTAL;
-            } else {
-              total = total + row[val.title];
-            }
-          }
+  const [currentClass, setCurrentClass] = useState({});
+  const [classSelectValue, setClassSelectValue] = useState("");
+
+  const [dataRows, setDataRows] = useState([]);
+  const [dataColumns, setDataColumns] = useState([]);
+
+  const dataGridReload = (selectedClassTitle) => {
+    const TITLE = selectedClassTitle || classSelectValue;
+    let FOUND = {};
+    if (TITLE && !isFetching && classes.length > 0) {
+      FOUND = classes.find(({ title }) => title === TITLE);
+      if (FOUND) setCurrentClass(FOUND);
+    } else if (TITLE == "" && !isFetching && classes.length > 0) {
+      setClassSelectValue(classes[0]?.title);
+      setCurrentClass(classes[0]);
+    } else if (classes.length === 0) {
+      setClassSelectValue("");
+      setCurrentClass({});
+      setDataRows([]);
+    }
+
+    if (FOUND?.students?.length > 0 && !isFetching) {
+      let arr = FOUND?.students?.map((entry) => {
+        let temp = { ...entry };
+        Object.entries(entry.grades).forEach(([key, val]) => {
+          const assign = FOUND.assignments.find(
+            ({ id }) => key.toString() === id.toString()
+          );
+          temp[assign?.title] = val;
         });
-        const result = total / assignments.length;
-        return isNaN(result) ? "" : total.toFixed(2);
-      },
-    },
-    {
-      field: "options",
-      headerName: " ",
-      align: "center",
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      renderCell: ({ row }) => (
-        <IconButton
-          onClick={() => {
-            setEditRow(row);
-            setEditOpen(true);
-          }}
-        >
-          <East />
-        </IconButton>
-      ),
-    },
-  ];
+        return temp;
+      });
+      setDataRows(arr);
+    } else {
+      setDataRows([]);
+    }
+
+    if (FOUND?.assignments?.length > 0) {
+      const cols = [
+        { field: "name", headerName: "Student", flex: 1, minWidth: 150 },
+        ...FOUND?.assignments.map(({ title, type }) => ({
+          field: title,
+          headerAlign: "center",
+          align: "center",
+          flex: 1,
+          minWidth: 100,
+          gradeType: type,
+          valueGetter: ({ value, colDef }) =>
+            Number(colDef?.gradeType === "Multiple" ? value?.TOTAL : value) ||
+            null,
+          type: "number",
+        })),
+        {
+          field: "TOTAL",
+          headerName: "Final Grade",
+          align: "center",
+          valueGetter: ({ row }) => {
+            let total = 0;
+            FOUND?.assignments.forEach((val) => {
+              if (row[val.title] !== undefined) {
+                if (typeof row[val.title] === "object") {
+                  total = total + row[val.title].TOTAL;
+                } else {
+                  total = total + row[val.title];
+                }
+              }
+            });
+            const result = total / FOUND?.assignments.length;
+            return isNaN(result) ? "" : result.toFixed(2);
+          },
+        },
+        {
+          field: "options",
+          headerName: " ",
+          align: "center",
+          sortable: false,
+          filterable: false,
+          disableColumnMenu: true,
+          width: 50,
+          renderCell: ({ row }) => (
+            <Button
+              onClick={() => {
+                setEditRow(row);
+                setEditOpen(true);
+              }}
+            >
+              <East />
+            </Button>
+          ),
+        },
+      ];
+      setDataColumns(cols);
+    } else {
+      setDataColumns([{ field: "name", headerName: "Student", flex: 1 }]);
+    }
+  };
+
+  useEffect(() => {
+    if (!isFetching) dataGridReload();
+  }, [isFetching, classSelectValue]);
+
+  const changeClass = (e) => {
+    const val = e.target.value;
+    const obj = classes.find(({ title }) => title === val);
+    if (obj.id) {
+      setCurrentClass(obj);
+      setClassSelectValue(obj.title);
+      setTimeout(() => dataGridReload(obj.title), 200);
+    }
+  };
+
+  const refetchData = () => {
+    refetch()
+      .then(({ error }) => {
+        if (error) throw new Error(error);
+        dataGridReload();
+      })
+      .catch((error) => console.error(error));
+    msg("It worked. Data refreshed.", { variant: "success" });
+  };
+
+  // console.log("HOME PAGE RENDER: " + Date.now());
 
   return (
     <Container component={Paper} sx={{ p: 2 }}>
       <StudentsModal
-        students={students}
+        students={currentClass?.students || []}
         open={studentModal}
         toggle={toggleStudentModal}
+        classId={currentClass.id}
       />
       <AssignmentModal
-        assignments={assignments}
+        assignments={currentClass?.assignments || []}
         open={assignmentModal}
         toggle={toggleAssignmentModal}
+        classId={currentClass.id}
       />
       <StudentGradeDrawer
         open={editOpen}
         toggle={() => setEditOpen(!editOpen)}
         row={editRow}
         setRow={setEditRow}
-        assignments={assignments}
+        assignments={currentClass?.assignments || []}
+      />
+      <ClassModal
+        open={newClassOpen}
+        toggle={() => setNewClassOpen(!newClassOpen)}
+        classes={classes}
       />
       <Stack
         direction="row"
         columnGap={1}
         justifyContent="space-between"
+        flexWrap="wrap"
         mb={2}
       >
-        <Tooltip title="Refetch data" arrow disableInteractive>
-          <span>
-            <IconButton
-              onClick={refetchData}
-              color="primary"
-              disabled={studentsFetching || assignmentsFetching}
-            >
-              <Refresh />
+        <Box flex={1} maxWidth="100%">
+          <TextField
+            label="Class Select"
+            value={classSelectValue || ""}
+            size="small"
+            onChange={changeClass}
+            select
+            sx={{ minWidth: 150, maxWidth: "inherit" }}
+            disabled={classes === undefined || classes?.length === 0}
+          >
+            {classes?.map((entry) => (
+              <MenuItem key={entry.id} value={entry.title}>
+                {entry.title}
+              </MenuItem>
+            )) || <MenuItem value="" />}
+          </TextField>
+        </Box>
+        <Stack
+          direction="row"
+          columnGap={1}
+          flex={1}
+          justifyContent="flex-end"
+          mx="auto"
+        >
+          <Tooltip title="Manage classes" arrow disableInteractive>
+            <IconButton color="primary" onClick={() => setNewClassOpen(true)}>
+              <Class />
             </IconButton>
-          </span>
-        </Tooltip>
-        <Stack direction="row" columnGap={2}>
-          <Button
-            variant="outlined"
-            endIcon={<Description />}
-            onClick={toggleAssignmentModal}
-          >
-            Assignments
-          </Button>
-          <Button
-            variant="outlined"
-            endIcon={<Groups />}
-            onClick={toggleStudentModal}
-          >
-            Students
-          </Button>
+          </Tooltip>
+          <Tooltip title="Manage class assignments" arrow disableInteractive>
+            <span>
+              <IconButton
+                color="primary"
+                onClick={toggleAssignmentModal}
+                disabled={classes.length === 0 || !currentClass}
+              >
+                <Description />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title="Manage class students" arrow disableInteractive>
+            <span>
+              <IconButton
+                color="primary"
+                onClick={toggleStudentModal}
+                disabled={classes.length === 0 || !currentClass}
+              >
+                <Groups />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title="Refetch data" arrow disableInteractive>
+            <span>
+              <IconButton
+                onClick={refetchData}
+                color="primary"
+                disabled={isFetching}
+              >
+                <Refresh />
+              </IconButton>
+            </span>
+          </Tooltip>
         </Stack>
       </Stack>
       <DataGrid
-        rows={dataRows}
+        rows={dataRows || []}
         columns={dataColumns}
         density="compact"
         autoHeight
-        loading={studentsFetching || assignmentsFetching}
+        loading={isFetching}
         showCellVerticalBorder
         disableRowSelectionOnClick
         disableColumnSelector
         initialState={{
           pagination: { paginationModel: { pageSize: 25 } },
+        }}
+        slots={{
+          noRowsOverlay: () => (
+            <Stack height="100%" alignItems="center" justifyContent="center">
+              {classes.length > 0 && classSelectValue !== "" ? (
+                "No students to display for the selected class"
+              ) : classes.length === 0 && classSelectValue === "" ? (
+                <Stack>
+                  <Typography>Create your first class!</Typography>
+                  <Button
+                    onClick={() => setNewClassOpen(!newClassOpen)}
+                    variant="contained"
+                    size="small"
+                    color="warning"
+                  >
+                    Create Class
+                  </Button>
+                </Stack>
+              ) : (
+                "Select a class to begin"
+              )}
+            </Stack>
+          ),
         }}
       />
     </Container>

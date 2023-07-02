@@ -47,7 +47,7 @@ export default function StudentGradeDrawer({
       }
     });
 
-    patchStudent({ id: row.id, body: { ...row, grades: calcGrades } })
+    patchStudent({ id: row.id, body: { grades: calcGrades } })
       .then((resp) => {
         reset();
       })
@@ -63,13 +63,31 @@ export default function StudentGradeDrawer({
   return (
     <Drawer anchor="right" open={open}>
       <Stack direction="row" height="100%">
-        <Tooltip title="Close" arrow disableInteractive placement="left">
+        <Tooltip
+          title="Close"
+          arrow
+          disableInteractive
+          placement="left"
+          sx={{
+            display: {
+              md: "block",
+              sm: "none",
+              xs: "none",
+            },
+          }}
+        >
           <Button onClick={toggle} color="inherit">
             <ChevronRight />
           </Button>
         </Tooltip>
-        <Stack m={2} spacing={1} minWidth={400}>
-          <Typography align="center" variant="h4">
+        <Stack
+          m={1}
+          spacing={1}
+          minWidth={350}
+          width="100%"
+          maxWidth={{ md: 400 }}
+        >
+          <Typography align="center" variant="h5">
             {row.name}
           </Typography>
           {assignments.length > 0 &&
@@ -79,12 +97,18 @@ export default function StudentGradeDrawer({
                   <Typography variant="body2" textTransform="uppercase" mb={1}>
                     {title}
                   </Typography>
-                  <Stack direction="row" spacing={1}>
+                  <Stack
+                    direction="row"
+                    rowGap={1}
+                    columnGap={1}
+                    flexWrap="wrap"
+                  >
                     {parts.map((part) => (
                       <TextField
                         key={`${part}-${id}`}
                         size="small"
-                        sx={{ width: 140 }}
+                        sx={{ width: { md: "48.8%", sm: "100%" } }}
+                        fullWidth
                         label={part}
                         type="number"
                         value={grades?.[id]?.[part] || ""}
@@ -123,20 +147,20 @@ export default function StudentGradeDrawer({
             })}
           <Stack direction="row" spacing={3} pt={1}>
             <Button
-              onClick={handleSave}
-              color="success"
-              variant="contained"
-              fullWidth
-            >
-              Save Changes
-            </Button>
-            <Button
               onClick={handleCancel}
               variant="outlined"
               color="warning"
               fullWidth
             >
               Clear & Close
+            </Button>
+            <Button
+              onClick={handleSave}
+              color="success"
+              variant="contained"
+              fullWidth
+            >
+              Save Changes
             </Button>
           </Stack>
         </Stack>

@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   InputLabel,
+  Paper,
   Stack,
   TextField,
   Typography,
@@ -14,13 +15,13 @@ import { setUserAssets } from "../store/userSlice";
 import { East, West } from "@mui/icons-material";
 
 export default function Login() {
-  const { closeSnackbar: msg } = useSnackbar();
+  const { enqueueSnackbar: msg } = useSnackbar();
   const [username, setUsername] = useState("");
   const [rememberCheck, setRememberCheck] = useState(false);
   const [error, setError] = useState("");
   const [newAccountForm, setNewAccountForm] = useState(false);
   const [login, { isLoading: getTeacherIsloading }] = useGetTeacherMutation();
-  const [createTeacher, { isLoading: newTeacherisLoading }] =
+  const [createTeacher, { isLoading: newTeacherIsLoading }] =
     useCreateTeacherMutation();
 
   const dispatch = useDispatch();
@@ -55,8 +56,8 @@ export default function Login() {
 
   useEffect(() => {
     const rememberedUser = window.localStorage.getItem("gradebook-user");
-    if (rememberedUser) checkLogin(rememberedUser);
-  }, [checkLogin]);
+    if (rememberedUser && !permitted) checkLogin(rememberedUser);
+  }, []);
 
   const createNewTeacher = () => {
     createTeacher({ username })
@@ -79,7 +80,7 @@ export default function Login() {
   };
 
   return (
-    <Stack spacing={2} width={300} mx="auto">
+    <Stack spacing={2} width={300} mx="auto" p={2} component={Paper}>
       <Typography variant="h5" align="center">
         {newAccountForm ? "Create" : "Access"} My Gradebook
       </Typography>
@@ -98,7 +99,7 @@ export default function Login() {
         <>
           <Button
             variant="contained"
-            disabled={username === "" || newTeacherisLoading || permitted}
+            disabled={username === "" || newTeacherIsLoading || permitted}
             onClick={createNewTeacher}
           >
             Create Account
