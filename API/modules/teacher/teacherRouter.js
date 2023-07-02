@@ -2,6 +2,7 @@ const router = require("express").Router();
 const teacherModel = require("./teacherModel");
 const studentModel = require("../student/studentModel");
 const assignmentModel = require("../assignment/assignmentModel");
+const classModel = require("../class/classModel");
 
 router.get("/", async function (req, res) {
   try {
@@ -61,19 +62,17 @@ router.delete("/:id", async function (req, res) {
 });
 
 router.delete("/complete/:teacherId", async function (req, res) {
-  const {
-    params: { teacherId },
-  } = req;
+  const { teacherId } = req.params;
   try {
-    const studentDocs = await studentModel.find({ teacherId });
-    const assignmentDocs = await assignmentModel.find({ teacherId });
+    const classes = await classModel.find({ teacherId });
     Promise.all([
-      ...studentDocs.map(
-        async ({ id }) => await studentModel.findByIdAndDelete(id)
-      ),
-      ...assignmentDocs.map(
-        async ({ id }) => await assignmentModel.findByIdAndDelete(id)
-      ),
+      ...classes.map(async ({ id: classId, students, assignments }) => [
+        ...students.map(async (id) => await studentModel.findByIdAndDelete(id)),
+        ...assignments.map(
+          async (id) => await assignmentModel.findByIdAndDelete(id)
+        ),
+        await classModel.findByIdAndDelete(classId),
+      ]),
       await teacherModel.findByIdAndDelete(teacherId),
     ])
       .then(() => {

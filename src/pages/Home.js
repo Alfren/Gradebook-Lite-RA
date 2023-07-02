@@ -9,6 +9,7 @@ import {
   Stack,
   TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { useGetTeacherClassesQuery } from "../store/rtk";
 import { Description, Groups, Refresh, East, Class } from "@mui/icons-material";
@@ -47,11 +48,13 @@ export default function Home() {
   const [dataRows, setDataRows] = useState([]);
   const [dataColumns, setDataColumns] = useState([]);
 
-  const dataGridReload = () => {
-    if (classSelectValue && !isFetching && classes.length > 0) {
-      const found = classes.find(({ title }) => title === classSelectValue);
-      if (found) setCurrentClass(found);
-    } else if (classSelectValue == "" && !isFetching && classes.length > 0) {
+  const dataGridReload = (selectedClassTitle) => {
+    const TITLE = selectedClassTitle || classSelectValue;
+    let FOUND = {};
+    if (TITLE && !isFetching && classes.length > 0) {
+      FOUND = classes.find(({ title }) => title === TITLE);
+      if (FOUND) setCurrentClass(FOUND);
+    } else if (TITLE == "" && !isFetching && classes.length > 0) {
       setClassSelectValue(classes[0]?.title);
       setCurrentClass(classes[0]);
     } else if (classes.length === 0) {
@@ -60,11 +63,11 @@ export default function Home() {
       setDataRows([]);
     }
 
-    if (currentClass?.students?.length > 0 && !isFetching) {
-      let arr = currentClass?.students?.map((entry) => {
+    if (FOUND?.students?.length > 0 && !isFetching) {
+      let arr = FOUND?.students?.map((entry) => {
         let temp = { ...entry };
         Object.entries(entry.grades).forEach(([key, val]) => {
-          const assign = currentClass.assignments.find(
+          const assign = FOUND.assignments.find(
             ({ id }) => key.toString() === id.toString()
           );
           temp[assign?.title] = val;
@@ -76,10 +79,10 @@ export default function Home() {
       setDataRows([]);
     }
 
-    if (currentClass?.assignments?.length > 0) {
+    if (FOUND?.assignments?.length > 0) {
       const cols = [
         { field: "name", headerName: "Student", flex: 1, minWidth: 150 },
-        ...currentClass?.assignments.map(({ title, type }) => ({
+        ...FOUND?.assignments.map(({ title, type }) => ({
           field: title,
           headerAlign: "center",
           align: "center",
@@ -97,7 +100,7 @@ export default function Home() {
           align: "center",
           valueGetter: ({ row }) => {
             let total = 0;
-            currentClass?.assignments.forEach((val) => {
+            FOUND?.assignments.forEach((val) => {
               if (row[val.title] !== undefined) {
                 if (typeof row[val.title] === "object") {
                   total = total + row[val.title].TOTAL;
@@ -106,7 +109,7 @@ export default function Home() {
                 }
               }
             });
-            const result = total / currentClass?.assignments.length;
+            const result = total / FOUND?.assignments.length;
             return isNaN(result) ? "" : result.toFixed(2);
           },
         },
@@ -135,9 +138,10 @@ export default function Home() {
       setDataColumns([{ field: "name", headerName: "Student", flex: 1 }]);
     }
   };
+
   useEffect(() => {
-    dataGridReload();
-  }, []); // currentClass, isFetching
+    if (!isFetching) dataGridReload();
+  }, [isFetching, classSelectValue]);
 
   const changeClass = (e) => {
     const val = e.target.value;
@@ -145,7 +149,7 @@ export default function Home() {
     if (obj.id) {
       setCurrentClass(obj);
       setClassSelectValue(obj.title);
-      dataGridReload();
+      setTimeout(() => dataGridReload(obj.title), 200);
     }
   };
 
@@ -159,7 +163,7 @@ export default function Home() {
     msg("It worked. Data refreshed.", { variant: "success" });
   };
 
-  console.log("HOME PAGE RENDER: " + Date.now());
+  // console.log("HOME PAGE RENDER: " + Date.now());
 
   return (
     <Container component={Paper} sx={{ p: 2 }}>
@@ -196,8 +200,8 @@ export default function Home() {
       >
         <Box flex={1} maxWidth="100%">
           <TextField
-            label="Select Class"
-            value={classSelectValue}
+            label="Class Select"
+            value={classSelectValue || ""}
             size="small"
             onChange={changeClass}
             select
@@ -273,9 +277,23 @@ export default function Home() {
         slots={{
           noRowsOverlay: () => (
             <Stack height="100%" alignItems="center" justifyContent="center">
-              {classes.length > 0 && classSelectValue !== ""
-                ? "No students to display for the selected class"
-                : "Create your first class!"}
+              {classes.length > 0 && classSelectValue !== "" ? (
+                "No students to display for the selected class"
+              ) : classes.length === 0 && classSelectValue === "" ? (
+                <Stack>
+                  <Typography>Create your first class!</Typography>
+                  <Button
+                    onClick={() => setNewClassOpen(!newClassOpen)}
+                    variant="contained"
+                    size="small"
+                    color="warning"
+                  >
+                    Create Class
+                  </Button>
+                </Stack>
+              ) : (
+                "Select a class to begin"
+              )}
             </Stack>
           ),
         }}

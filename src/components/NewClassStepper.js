@@ -21,7 +21,7 @@ import {
 import { blue } from "@mui/material/colors";
 import { Add, Close } from "@mui/icons-material";
 
-const steps = ["Class Name", "Assignments", "Students"];
+const steps = ["Provide Class Name", "Develop Assignments", "Add Students"];
 
 export default function NewClassStepper({ toggle }) {
   const { enqueueSnackbar: msg } = useSnackbar();
@@ -336,7 +336,7 @@ export default function NewClassStepper({ toggle }) {
           <Box component={Paper} m={1} p={1}>
             <Typography>Students</Typography>
             {students.length > 0 && (
-              <Stack p={1} m={1} alignItems="center">
+              <Stack p={1} m={1}>
                 {students.map((entry, i) => (
                   <Typography key={i}>
                     <IconButton
