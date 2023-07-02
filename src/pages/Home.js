@@ -17,7 +17,12 @@ import StudentsModal from "../components/StudentsModal";
 import { useSnackbar } from "notistack";
 import AssignmentModal from "../components/AssignmentModal";
 import StudentGradeDrawer from "../components/StudentGradeDrawer";
-import { DataGrid } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridToolbar,
+  GridToolbarContainer,
+  GridToolbarQuickFilter,
+} from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
 import ClassModal from "../components/ClassModal";
 
@@ -79,15 +84,31 @@ export default function Home() {
       setDataRows([]);
     }
 
+    const totalGradeValue = ({ row }) => {
+      let total = 0,
+        count = 0;
+      FOUND?.assignments.forEach((val) => {
+        if (row[val.title] !== undefined) {
+          if (typeof row[val.title] === "object") {
+            total = total + row[val.title].TOTAL;
+          } else {
+            total = total + row[val.title];
+          }
+          count++;
+        }
+      });
+      const result = total / count;
+      return isNaN(result) ? "" : result.toFixed(2);
+    };
+
     if (FOUND?.assignments?.length > 0) {
       const cols = [
-        { field: "name", headerName: "Student", flex: 1, minWidth: 150 },
+        { field: "name", headerName: "Student", minWidth: 150, maxWidth: 250 },
         ...FOUND?.assignments.map(({ title, type }) => ({
           field: title,
           headerAlign: "center",
           align: "center",
           flex: 1,
-          minWidth: 100,
           gradeType: type,
           valueGetter: ({ value, colDef }) =>
             Number(colDef?.gradeType === "Multiple" ? value?.TOTAL : value) ||
@@ -98,20 +119,11 @@ export default function Home() {
           field: "TOTAL",
           headerName: "Final Grade",
           align: "center",
-          valueGetter: ({ row }) => {
-            let total = 0;
-            FOUND?.assignments.forEach((val) => {
-              if (row[val.title] !== undefined) {
-                if (typeof row[val.title] === "object") {
-                  total = total + row[val.title].TOTAL;
-                } else {
-                  total = total + row[val.title];
-                }
-              }
-            });
-            const result = total / FOUND?.assignments.length;
-            return isNaN(result) ? "" : result.toFixed(2);
-          },
+          minWidth: 100,
+          sx: { width: "auto" },
+          type: "number",
+          valueGetter: totalGradeValue,
+          renderCell: totalGradeValue,
         },
         {
           field: "options",
@@ -121,6 +133,7 @@ export default function Home() {
           filterable: false,
           disableColumnMenu: true,
           width: 50,
+          sx: { "@media print": { display: "none !important" } },
           renderCell: ({ row }) => (
             <Button
               onClick={() => {
@@ -163,7 +176,19 @@ export default function Home() {
     msg("It worked. Data refreshed.", { variant: "success" });
   };
 
-  // console.log("HOME PAGE RENDER: " + Date.now());
+  const CustomToolbar = () => {
+    return (
+      <GridToolbarContainer sx={{ justifyContent: "space-between" }}>
+        <GridToolbar
+          printOptions={{
+            hideFooter: true,
+            hideToolbar: true,
+          }}
+        />
+        <GridToolbarQuickFilter />
+      </GridToolbarContainer>
+    );
+  };
 
   return (
     <Container component={Paper} sx={{ p: 2 }}>
@@ -267,6 +292,7 @@ export default function Home() {
         columns={dataColumns}
         density="compact"
         autoHeight
+        sx={{ "@media print": { "*": { width: "fit-content" } } }}
         loading={isFetching}
         showCellVerticalBorder
         disableRowSelectionOnClick
@@ -275,12 +301,13 @@ export default function Home() {
           pagination: { paginationModel: { pageSize: 25 } },
         }}
         slots={{
+          toolbar: CustomToolbar,
           noRowsOverlay: () => (
             <Stack height="100%" alignItems="center" justifyContent="center">
               {classes.length > 0 && classSelectValue !== "" ? (
                 "No students to display for the selected class"
               ) : classes.length === 0 && classSelectValue === "" ? (
-                <Stack>
+                <Stack className="noPrint">
                   <Typography>Create your first class!</Typography>
                   <Button
                     onClick={() => setNewClassOpen(!newClassOpen)}

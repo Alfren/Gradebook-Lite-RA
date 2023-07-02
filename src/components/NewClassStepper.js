@@ -126,11 +126,6 @@ export default function NewClassStepper({ toggle }) {
     handleNext();
   };
 
-  // const handleReset = () => {
-  //   setActiveStep(0);
-  //   setCompleted({});
-  // };
-
   return (
     <>
       <Stepper nonLinear activeStep={activeStep} sx={{ mb: 3 }}>
