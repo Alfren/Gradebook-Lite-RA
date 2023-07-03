@@ -19,11 +19,11 @@ export default function App() {
   const toggleTheme = () => {
     const temp = !mode;
     setMode(temp);
-    window.localStorage.setItem("gradebook-mode", temp);
+    window.localStorage.setItem("Z3JhZGVib29rLW1vZGU=", temp);
   };
 
   useEffect(() => {
-    const storedMode = window.localStorage.getItem("gradebook-mode");
+    const storedMode = window.localStorage.getItem("Z3JhZGVib29rLW1vZGU=");
     if (storedMode !== null) setMode(JSON.parse(storedMode));
   }, []);
 

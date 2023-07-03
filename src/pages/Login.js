@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import {
+  Backdrop,
   Button,
   Checkbox,
+  CircularProgress,
   InputLabel,
   Paper,
   Stack,
@@ -20,9 +22,10 @@ export default function Login() {
   const [rememberCheck, setRememberCheck] = useState(false);
   const [error, setError] = useState("");
   const [newAccountForm, setNewAccountForm] = useState(false);
-  const [login, { isLoading: getTeacherIsloading }] = useGetTeacherMutation();
+  const [login, { isLoading: getTeacherIsLoading }] = useGetTeacherMutation();
   const [createTeacher, { isLoading: newTeacherIsLoading }] =
     useCreateTeacherMutation();
+  const [LOADING, setLOADING] = useState(true);
 
   const dispatch = useDispatch();
   const { permitted } = useSelector((state) => state.user);
@@ -38,8 +41,9 @@ export default function Login() {
           return;
         }
         if (data.id && data.username) {
-          if (rememberCheck)
-            window.localStorage.setItem("gradebook-user", username);
+          if (rememberCheck) {
+            window.localStorage.setItem("Z3JhZGVib29rLXVzZXI=", btoa(username));
+          }
           dispatch(
             setUserAssets({
               id: data.id,
@@ -52,11 +56,18 @@ export default function Login() {
       .catch((error) => {
         console.error(error);
       });
+    setLOADING(false);
   };
 
   useEffect(() => {
-    const rememberedUser = window.localStorage.getItem("gradebook-user");
-    if (rememberedUser && !permitted) checkLogin(rememberedUser);
+    let rememberedUser = window.localStorage.getItem("Z3JhZGVib29rLXVzZXI=");
+    const isEncoded = btoa(atob(rememberedUser)) == rememberedUser;
+    if (rememberedUser && isEncoded) rememberedUser = atob(rememberedUser);
+    if (rememberedUser && !permitted && isEncoded) {
+      checkLogin(rememberedUser);
+    } else {
+      setLOADING(false);
+    }
   }, []);
 
   const createNewTeacher = () => {
@@ -81,6 +92,14 @@ export default function Login() {
 
   return (
     <Stack spacing={2} width={300} mx="auto" p={2} component={Paper}>
+      <Backdrop
+        open={getTeacherIsLoading || newTeacherIsLoading || LOADING}
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        component={Stack}
+      >
+        <CircularProgress color="inherit" thickness={5} size={80} />
+        <Typography variant="h5">LOADING</Typography>
+      </Backdrop>
       <Typography variant="h5" align="center">
         {newAccountForm ? "Create" : "Access"} My Gradebook
       </Typography>
@@ -91,7 +110,7 @@ export default function Login() {
         fullWidth
         required
         autoComplete="username"
-        disabled={getTeacherIsloading || permitted}
+        disabled={getTeacherIsLoading || permitted}
         error={error !== ""}
         helperText={error}
       />
@@ -99,7 +118,12 @@ export default function Login() {
         <>
           <Button
             variant="contained"
-            disabled={username === "" || newTeacherIsLoading || permitted}
+            disabled={
+              username === "" ||
+              newTeacherIsLoading ||
+              getTeacherIsLoading ||
+              permitted
+            }
             onClick={createNewTeacher}
           >
             Create Account
@@ -130,7 +154,7 @@ export default function Login() {
           <Button
             variant="contained"
             color="success"
-            disabled={username === "" || getTeacherIsloading || permitted}
+            disabled={username === "" || getTeacherIsLoading || permitted}
             onClick={checkLogin}
           >
             Connect

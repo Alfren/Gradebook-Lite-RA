@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Box,
   Dialog,
+  Divider,
   IconButton,
   Paper,
   Stack,
@@ -46,6 +47,9 @@ export default function ClassModal({ open, toggle, classes }) {
       <Typography variant="h5" align="center" p={2} px={6}>
         MANAGE CLASSES
       </Typography>
+      {classes.length > 0 && (
+        <Divider sx={{ mx: 2, mt: 1 }}>Existing Classes</Divider>
+      )}
       <Stack sx={{ p: 1 }}>
         {classes.length > 0 ? (
           classes?.map(({ title, id, students, assignments }) => {
@@ -142,6 +146,7 @@ export default function ClassModal({ open, toggle, classes }) {
           </Typography>
         )}
       </Stack>
+      <Divider sx={{ mx: 2, mt: 1 }}>New Class</Divider>
       <NewClassStepper toggle={toggle} />
     </Dialog>
   );
