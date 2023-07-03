@@ -387,7 +387,7 @@ export default function NewClassStepper({ toggle }) {
         {activeStep !== steps.length - 1 ? (
           <Button onClick={handleComplete}>Next</Button>
         ) : (
-          <Button onClick={createClass} color="success">
+          <Button onClick={createClass} color="success" disabled={title === ""}>
             Create Class
           </Button>
         )}
