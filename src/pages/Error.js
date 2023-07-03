@@ -9,7 +9,11 @@ export default function Error() {
       <Typography variant="h4" align="center">
         Page Not Found
       </Typography>
-      <Button onClick={() => navigate("/")} variant="outlined" endIcon={East}>
+      <Button
+        onClick={() => navigate("/")}
+        variant="outlined"
+        endIcon={<East />}
+      >
         Go Home
       </Button>
     </Stack>
