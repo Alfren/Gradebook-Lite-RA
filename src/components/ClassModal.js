@@ -14,6 +14,7 @@ import { Delete, KeyboardArrowDown } from "@mui/icons-material";
 import { useSnackbar } from "notistack";
 import ConfirmDialog from "./ConfirmDialog";
 import NewClassStepper from "./NewClassStepper";
+import { useSelector } from "react-redux";
 
 export default function ClassModal({ open, toggle, classes }) {
   const { enqueueSnackbar: msg } = useSnackbar();
@@ -21,11 +22,12 @@ export default function ClassModal({ open, toggle, classes }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmData, setConfirmData] = useState({});
 
+  const { id: teacherId } = useSelector((state) => state.user);
   const [removeClass, { isLoading: deleteIsLoading }] =
     useDeleteClassMutation();
 
   const deleteClass = (id) => {
-    removeClass(id)
+    removeClass({ id, teacherId })
       .then(({ error }) => {
         if (error) throw new Error(error.message);
         msg("Class deleted!", { variant: "success" });
