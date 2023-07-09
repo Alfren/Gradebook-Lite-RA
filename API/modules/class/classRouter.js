@@ -2,6 +2,7 @@ const router = require("express").Router();
 const classModel = require("./classModel");
 const studentModel = require("../student/studentModel");
 const assignmentModel = require("../assignment/assignmentModel");
+const teacherModel = require("../teacher/teacherModel");
 
 router.get("/", async function (req, res) {
   try {
@@ -39,11 +40,14 @@ router.post("/", async function (req, res) {
     const newAssignments = await Promise.all([
       ...assignments.map(async (entry) => await assignmentModel.create(entry)),
     ]);
-    await classModel.create({
+    const newClass = await classModel.create({
       title,
       teacherId,
       students: newStudents.map(({ id }) => id),
       assignments: newAssignments.map(({ id }) => id),
+    });
+    await teacherModel.findByIdAndUpdate(teacherId, {
+      $push: { classes: newClass.id },
     });
     res.send();
   } catch (error) {
@@ -65,9 +69,9 @@ router.patch("/:id", async function (req, res) {
   }
 });
 
-router.delete("/:id", async function (req, res) {
+router.delete("/:id/:teacherId", async function (req, res) {
   const {
-    params: { id },
+    params: { id, teacherId },
   } = req;
   try {
     const response = await classModel.findByIdAndDelete(id);
@@ -85,6 +89,7 @@ router.delete("/:id", async function (req, res) {
         ),
       ]);
     }
+    await teacherModel.findByIdAndUpdate(teacherId, { $pull: { classes: id } });
     res.send(response);
   } catch (error) {
     res.status(error.status || 500).send(error);

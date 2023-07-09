@@ -99,8 +99,8 @@ export const api = createApi({
       invalidatesTags: ["classes"],
     }),
     deleteClass: builder.mutation({
-      query: (id) => ({
-        url: `/classes/${id}`,
+      query: ({ id, teacherId }) => ({
+        url: `/classes/${id}/${teacherId}`,
         method: "DELETE",
       }),
       invalidatesTags: ["classes"],

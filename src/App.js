@@ -15,7 +15,8 @@ import { Home, Error, Login } from "./pages/index";
 import { blue } from "@mui/material/colors";
 
 export default function App() {
-  const [mode, setMode] = useState(true);
+  const { permitted } = useSelector((state) => state.user);
+  const [mode, setMode] = useState(false);
   const toggleTheme = () => {
     const temp = !mode;
     setMode(temp);
@@ -24,7 +25,11 @@ export default function App() {
 
   useEffect(() => {
     const storedMode = window.localStorage.getItem("Z3JhZGVib29rLW1vZGU=");
-    if (storedMode !== null) setMode(JSON.parse(storedMode));
+    if (storedMode === null) {
+      setMode(window.matchMedia("(prefers-color-scheme: dark)").matches);
+    } else {
+      setMode(JSON.parse(storedMode));
+    }
   }, []);
 
   const theme = createTheme({
@@ -33,8 +38,6 @@ export default function App() {
       background: { default: mode ? blue[900] : blue[400] },
     },
   });
-
-  const { permitted } = useSelector((state) => state.user);
 
   function SnackbarCloseButton({ snackbarKey }) {
     const { closeSnackbar } = useSnackbar();
