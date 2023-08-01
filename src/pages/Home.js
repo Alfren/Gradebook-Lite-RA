@@ -293,6 +293,20 @@ export default function Home() {
         density="compact"
         autoHeight
         sx={{ "@media print": { "*": { width: "fit-content" } } }}
+        getRowClassName={({ row }) => {
+          let total = 0,
+            count = 0;
+          Object.values(row.grades).forEach((val) => {
+            if (typeof val === "object") {
+              total = total + val.TOTAL;
+            } else {
+              total = total + val;
+            }
+            count++;
+          });
+          total = total / count;
+          return total <= 6 ? "failing-grade-highlight" : "";
+        }}
         loading={isFetching}
         showCellVerticalBorder
         disableRowSelectionOnClick
