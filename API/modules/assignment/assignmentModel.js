@@ -15,6 +15,12 @@ const AssignmentSchema = new Schema(
     parts: {
       type: Array,
     },
+    group: {
+      type: String,
+    },
+    weight: {
+      type: Number,
+    },
   },
   {
     timestamps: true,

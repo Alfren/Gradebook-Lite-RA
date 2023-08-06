@@ -31,7 +31,8 @@ export default function StudentsModal({ students, open, toggle, classId }) {
 
   const createStudent = () => {
     postStudent({ name, teacherId, classId })
-      .then((resp) => {
+      .then(({ error }) => {
+        if (error) throw new Error(error);
         setName("");
       })
       .catch((error) => {

@@ -1,27 +1,33 @@
 import { useEffect, useState, useRef } from "react";
 import {
+  Backdrop,
   Button,
   Chip,
+  CircularProgress,
   Dialog,
   IconButton,
   List,
   ListItem,
-  ListItemAvatar,
+  ListItemButton,
+  ListItemIcon,
   ListItemText,
   MenuItem,
   Paper,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, SaveRounded } from "@mui/icons-material";
 import {
   useCreateAssignmentMutation,
   useDeleteAssignmentMutation,
+  useUpdateAssignmentMutation,
 } from "../store/rtk";
 import ConfirmDialog from "./ConfirmDialog";
 import CloseButton from "./CloseButton";
 import { useSelector } from "react-redux";
+import { useSnackbar } from "notistack";
 
 export default function AssignmentModal({
   assignments,
@@ -29,9 +35,14 @@ export default function AssignmentModal({
   toggle,
   classId,
 }) {
+  const { enqueueSnackbar: msg } = useSnackbar();
   const { id: teacherId } = useSelector((state) => state.user);
-  const [postAssignment] = useCreateAssignmentMutation();
-  const [deleteAssignment] = useDeleteAssignmentMutation();
+  const [postAssignment, { isLoading: postLoading }] =
+    useCreateAssignmentMutation();
+  const [deleteAssignment, { isLoading: deleteLoading }] =
+    useDeleteAssignmentMutation();
+  const [patchAssignment, { isLoading: patchLoading }] =
+    useUpdateAssignmentMutation();
   const [assignment, setAssignment] = useState("");
   const [type, setType] = useState("Single");
 
@@ -40,6 +51,9 @@ export default function AssignmentModal({
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmData, setConfirmData] = useState({});
+
+  const [editId, setEditId] = useState(null);
+  const loading = postLoading || deleteLoading || patchLoading;
 
   const createAssignment = () => {
     let body = { title: assignment, type, teacherId, classId };
@@ -53,6 +67,23 @@ export default function AssignmentModal({
       })
       .catch((error) => {
         console.error(error);
+      });
+  };
+
+  const updateAssignment = () => {
+    let body = { title: assignment, type, teacherId, classId, id: editId };
+    if (type === "Multiple") body.parts = parts;
+    patchAssignment(body)
+      .then(({ error }) => {
+        if (error) throw new Error(error);
+        msg("Assignment updated!", { variant: "success" });
+        setAssignment("");
+        setParts([]);
+        setEditId(null);
+      })
+      .catch((error) => {
+        console.error(error);
+        msg("Assignment updated failed!", { variant: "error" });
       });
   };
 
@@ -77,8 +108,21 @@ export default function AssignmentModal({
     partInputRef.current.focus();
   };
 
+  const handleEdit = ({ id, title, type, parts }) => {
+    setEditId(id);
+    setAssignment(title);
+    setType(type);
+    if (type === "Multiple") setParts(parts);
+  };
+
   return (
     <Dialog open={open} onClose={toggle} maxWidth="md">
+      <Backdrop open={loading} sx={{ zIndex: 99 }}>
+        <Stack justifyContent="center" alignItems="center">
+          <CircularProgress />
+          <Typography>Processing...</Typography>
+        </Stack>
+      </Backdrop>
       <ConfirmDialog
         open={confirmOpen}
         toggle={() => setConfirmOpen(!confirmOpen)}
@@ -202,63 +246,90 @@ export default function AssignmentModal({
               )}
             </>
           )}
-          <Button
-            variant="contained"
-            color="success"
-            onClick={createAssignment}
-            disabled={
-              assignment === "" || (type === "Multiple" && parts.length === 0)
-            }
-            endIcon={<Add />}
-          >
-            Create Assignment
-          </Button>
+          {editId ? (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={updateAssignment}
+              disabled={
+                assignment === "" || (type === "Multiple" && parts.length === 0)
+              }
+              endIcon={<SaveRounded />}
+            >
+              Update Assignment
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={createAssignment}
+              disabled={
+                assignment === "" || (type === "Multiple" && parts.length === 0)
+              }
+              endIcon={<Add />}
+            >
+              Create Assignment
+            </Button>
+          )}
         </Stack>
-        <Stack spacing={2} sx={{ minWidth: 300 }}>
+        <Stack gap={2} sx={{ minWidth: 300 }}>
           <List dense sx={{ maxHeight: "60vh", overflowY: "auto", pt: 0 }}>
             {assignments.length > 0 &&
               assignments.map(({ title, type, parts, id }, i) => (
-                <ListItem key={id} component={Paper} sx={{ mb: 1 }}>
-                  <ListItemAvatar sx={{ minWidth: "unset" }}>
-                    <Typography color="text.secondary" component="span" pr={1}>
-                      {i + 1}.
-                    </Typography>
-                  </ListItemAvatar>
-                  <ListItemText flex={1}>
-                    <Stack>
-                      <Typography>{title}</Typography>
-                      {type === "Multiple" &&
-                        parts.map((val, t) => (
-                          <Typography
-                            key={t}
-                            ml={1}
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            {`${t + 1}. ${val}`}
-                          </Typography>
-                        ))}
-                    </Stack>
-                  </ListItemText>
-                  <IconButton
-                    color="error"
-                    onClick={() => {
-                      setConfirmData({
-                        title: "Remove assignment",
-                        description: `Delete ${title}?`,
-                        actions: [
-                          {
-                            action: () => deleteAssignment({ id, classId }),
-                            color: "error",
-                            label: "DELETE",
-                          },
-                        ],
-                      });
-                      setConfirmOpen(true);
-                    }}
-                  >
-                    <Delete />
-                  </IconButton>
+                <ListItem
+                  key={id}
+                  component={Paper}
+                  disablePadding
+                  divider
+                  secondaryAction={
+                    <Tooltip title="Delete assignment" arrow disableInteractive>
+                      <IconButton
+                        color="error"
+                        onClick={() => {
+                          setConfirmData({
+                            title: "Remove assignment",
+                            description: `Delete ${title}?`,
+                            actions: [
+                              {
+                                action: () => deleteAssignment({ id, classId }),
+                                color: "error",
+                                label: "DELETE",
+                              },
+                            ],
+                          });
+                          setConfirmOpen(true);
+                        }}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
+                  }
+                >
+                  <Tooltip title="Edit assignment" arrow disableInteractive>
+                    <ListItemButton
+                      onClick={() => handleEdit({ title, type, parts, id })}
+                      sx={{ width: "100%", py: 1 }}
+                    >
+                      <ListItemIcon sx={{ minWidth: "unset" }}>
+                        <Typography color="text.secondary" pr={1}>
+                          {i + 1}.
+                        </Typography>
+                      </ListItemIcon>
+                      <Stack>
+                        <Typography>{title}</Typography>
+                        {type === "Multiple" &&
+                          parts.map((val, t) => (
+                            <Typography
+                              key={t}
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {`${t + 1}. ${val}`}
+                            </Typography>
+                          ))}
+                      </Stack>
+                    </ListItemButton>
+                  </Tooltip>
                 </ListItem>
               ))}
           </List>

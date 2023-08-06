@@ -55,6 +55,14 @@ export const api = createApi({
       }),
       invalidatesTags: ["assignments", "classes"],
     }),
+    updateAssignment: builder.mutation({
+      query: (body) => ({
+        url: `/assignments/${body.id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["assignments", "classes"],
+    }),
     deleteAssignment: builder.mutation({
       query: ({ id, classId }) => ({
         url: `/assignments/${id}/class/${classId}`,
@@ -117,6 +125,7 @@ export const {
   useDeleteStudentMutation,
   useGetAssignmentsQuery,
   useCreateAssignmentMutation,
+  useUpdateAssignmentMutation,
   useDeleteAssignmentMutation,
   useGetTeacherMutation,
   useCreateTeacherMutation,
