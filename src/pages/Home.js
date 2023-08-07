@@ -111,7 +111,7 @@ export default function Home() {
           flex: 1,
           gradeType: type,
           valueGetter: ({ value, colDef }) =>
-            Number(colDef?.gradeType === "Multiple" ? value?.TOTAL : value) ||
+            Number(colDef?.gradeType === "Rubric" ? value?.TOTAL : value) ||
             null,
           type: "number",
         })),
@@ -171,9 +171,9 @@ export default function Home() {
       .then(({ error }) => {
         if (error) throw new Error(error);
         dataGridReload();
+        msg("Data refreshed.", { variant: "success" });
       })
       .catch((error) => console.error(error));
-    msg("It worked. Data refreshed.", { variant: "success" });
   };
 
   const CustomToolbar = () => {

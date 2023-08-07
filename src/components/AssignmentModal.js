@@ -4,7 +4,9 @@ import {
   Button,
   Chip,
   CircularProgress,
+  Collapse,
   Dialog,
+  Divider,
   IconButton,
   List,
   ListItem,
@@ -55,15 +57,20 @@ export default function AssignmentModal({
   const [editId, setEditId] = useState(null);
   const loading = postLoading || deleteLoading || patchLoading;
 
+  const resetForm = () => {
+    setAssignment("");
+    setParts([]);
+    setNewPartTitle("");
+    setEditId(null);
+  };
+
   const createAssignment = () => {
     let body = { title: assignment, type, teacherId, classId };
-    if (type === "Multiple") body.parts = parts;
+    if (type === "Rubric") body.parts = parts;
     postAssignment(body)
-      .then(() => {
-        setAssignment("");
-        setParts([]);
-        setNewPartTitle("");
-        setType("Single");
+      .then(({ error }) => {
+        if (error) throw new Error(error);
+        resetForm();
       })
       .catch((error) => {
         console.error(error);
@@ -72,14 +79,12 @@ export default function AssignmentModal({
 
   const updateAssignment = () => {
     let body = { title: assignment, type, teacherId, classId, id: editId };
-    if (type === "Multiple") body.parts = parts;
+    if (type === "Rubric") body.parts = parts;
     patchAssignment(body)
       .then(({ error }) => {
         if (error) throw new Error(error);
         msg("Assignment updated!", { variant: "success" });
-        setAssignment("");
-        setParts([]);
-        setEditId(null);
+        resetForm();
       })
       .catch((error) => {
         console.error(error);
@@ -112,7 +117,7 @@ export default function AssignmentModal({
     setEditId(id);
     setAssignment(title);
     setType(type);
-    if (type === "Multiple") setParts(parts);
+    if (type === "Rubric") setParts(parts);
   };
 
   return (
@@ -133,10 +138,20 @@ export default function AssignmentModal({
         ASSIGNMENTS
       </Typography>
       <Stack columnGap={2} m={2} direction="row">
-        <Stack spacing={2} sx={{ minWidth: 300 }} component={Paper} p={1}>
-          <Typography variant="h6" align="center">
-            New Assignment
-          </Typography>
+        <Stack
+          spacing={2}
+          sx={{
+            minWidth: 300,
+            backgroundColor: editId ? "#bb35" : "default",
+          }}
+          component={Paper}
+          p={1}
+        >
+          <Divider>
+            <Typography variant="h6" align="center">
+              {editId ? "Edit" : "New"} Assignment
+            </Typography>
+          </Divider>
           <TextField
             value={assignment}
             onChange={(e) => setAssignment(e.target.value)}
@@ -157,118 +172,123 @@ export default function AssignmentModal({
             helperText={
               type === "Single"
                 ? "Type 'Single' has only 1 grade"
-                : "Type 'Multiple' can have sub-grades"
+                : "Type 'Rubric' can have sub-grades"
             }
           >
             <MenuItem value="Single">Single</MenuItem>
-            <MenuItem value="Multiple">Multiple</MenuItem>
+            <MenuItem value="Rubric">Rubric</MenuItem>
           </TextField>
-          {type === "Multiple" && (
-            <>
-              {chipList.length > 0 && (
-                <Paper elevation={6} sx={{ p: 1 }}>
-                  <Typography variant="body2" pb={1}>
-                    Category Suggestions
-                  </Typography>
-                  <Stack direction="row" spacing={1}>
-                    {chipList.map((val) => (
-                      <Chip
-                        label={val}
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => {
-                          setChipList(chipList.filter((el) => el !== val));
-                          setParts([...parts, val]);
-                        }}
-                        key={val}
-                      />
-                    ))}
-                  </Stack>
-                </Paper>
+          <Collapse
+            in={type === "Rubric"}
+            timeout={300}
+            easing={{ enter: "yes" }}
+          >
+            <Collapse in={chipList.length > 0} easing={{ enter: "yes" }}>
+              <Paper elevation={6} sx={{ p: 1 }}>
+                <Typography variant="body2" pb={1}>
+                  Category Suggestions
+                </Typography>
+                <Stack direction="row" spacing={1}>
+                  {chipList.map((val) => (
+                    <Chip
+                      label={val}
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => {
+                        setChipList(chipList.filter((el) => el !== val));
+                        setParts([...parts, val]);
+                      }}
+                      key={val}
+                    />
+                  ))}
+                </Stack>
+              </Paper>
+            </Collapse>
+            <Stack direction="row" spacing={2} my={1}>
+              <TextField
+                value={newPartTitle}
+                onChange={(e) => setNewPartTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newPartTitle !== "") handleAddPart();
+                }}
+                label="Assignment Category Title"
+                size="small"
+                inputRef={partInputRef}
+              />
+              <Button
+                onClick={handleAddPart}
+                variant="contained"
+                color="success"
+                size="small"
+                disabled={newPartTitle === "" || parts.includes(newPartTitle)}
+              >
+                <Add />
+              </Button>
+            </Stack>
+            <List dense component={Paper}>
+              {parts.length === 0 && (
+                <ListItem>
+                  <ListItemText align="center">
+                    <Typography color="text.secondary">
+                      Add assignment categories
+                    </Typography>
+                  </ListItemText>
+                </ListItem>
               )}
-              <Stack direction="row" spacing={2}>
-                <TextField
-                  value={newPartTitle}
-                  onChange={(e) => setNewPartTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && newPartTitle !== "")
-                      handleAddPart();
-                  }}
-                  label="Assignment Category Title"
-                  size="small"
-                  inputRef={partInputRef}
-                />
-                <Button
-                  onClick={handleAddPart}
-                  variant="contained"
-                  color="success"
-                  size="small"
-                  disabled={newPartTitle === "" || parts.includes(newPartTitle)}
-                >
-                  <Add />
-                </Button>
-              </Stack>
-              {type === "Multiple" && (
-                <List dense component={Paper}>
-                  {parts.length === 0 && (
-                    <ListItem>
-                      <ListItemText align="center">
-                        <Typography color="text.secondary">
-                          Add assignment categories
-                        </Typography>
-                      </ListItemText>
-                    </ListItem>
-                  )}
-                  {parts.map((title, i) => {
-                    return (
-                      <ListItem
-                        key={i}
-                        sx={{ ":hover": { background: "#44444480" } }}
-                      >
-                        <ListItemText sx={{ flex: 1 }}>
-                          <Typography component="span" color="text.secondary">
-                            {i + 1}.{" "}
-                          </Typography>
-                          {title}
-                        </ListItemText>
-                        <IconButton
-                          color="error"
-                          onClick={() =>
-                            setParts([...parts.filter((el) => el !== title)])
-                          }
-                        >
-                          <Delete />
-                        </IconButton>
-                      </ListItem>
-                    );
-                  })}
-                </List>
-              )}
-            </>
-          )}
+              {parts.map((title, i) => {
+                return (
+                  <ListItem
+                    key={i}
+                    sx={{ ":hover": { background: "#44444480" } }}
+                  >
+                    <ListItemText sx={{ flex: 1 }}>
+                      <Typography component="span" color="text.secondary">
+                        {i + 1}.{" "}
+                      </Typography>
+                      {title}
+                    </ListItemText>
+                    <IconButton
+                      color="error"
+                      tabIndex={-1}
+                      onClick={() =>
+                        setParts([...parts.filter((el) => el !== title)])
+                      }
+                    >
+                      <Delete />
+                    </IconButton>
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Collapse>
           {editId ? (
-            <Button
-              variant="contained"
-              color="success"
-              onClick={updateAssignment}
-              disabled={
-                assignment === "" || (type === "Multiple" && parts.length === 0)
-              }
-              endIcon={<SaveRounded />}
-            >
-              Update Assignment
-            </Button>
+            <Stack direction="row" spacing={2} justifyContent="space-between">
+              <Button
+                variant="contained"
+                color="success"
+                onClick={updateAssignment}
+                disabled={
+                  assignment === "" || (type === "Rubric" && parts.length === 0)
+                }
+                endIcon={<SaveRounded />}
+              >
+                Save Changes
+              </Button>
+              <Button color="warning" onClick={resetForm} tabIndex={-1}>
+                Reset
+              </Button>
+            </Stack>
           ) : (
             <Button
               variant="contained"
               color="success"
               onClick={createAssignment}
               disabled={
-                assignment === "" || (type === "Multiple" && parts.length === 0)
+                assignment === "" || (type === "Rubric" && parts.length === 0)
               }
               endIcon={<Add />}
             >
-              Create Assignment
+              Add
             </Button>
           )}
         </Stack>
@@ -285,6 +305,7 @@ export default function AssignmentModal({
                     <Tooltip title="Delete assignment" arrow disableInteractive>
                       <IconButton
                         color="error"
+                        tabIndex={-1}
                         onClick={() => {
                           setConfirmData({
                             title: "Remove assignment",
@@ -317,7 +338,7 @@ export default function AssignmentModal({
                       </ListItemIcon>
                       <Stack>
                         <Typography>{title}</Typography>
-                        {type === "Multiple" &&
+                        {type === "Rubric" &&
                           parts.map((val, t) => (
                             <Typography
                               key={t}

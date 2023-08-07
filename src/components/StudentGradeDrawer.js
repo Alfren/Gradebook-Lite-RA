@@ -92,7 +92,7 @@ export default function StudentGradeDrawer({
           </Typography>
           {assignments.length > 0 &&
             assignments.map(({ id, title, type, parts }) => {
-              return type === "Multiple" ? (
+              return type === "Rubric" ? (
                 <Box key={id} component={Paper} p={1} elevation={4}>
                   <Typography variant="body2" textTransform="uppercase" mb={1}>
                     {title}

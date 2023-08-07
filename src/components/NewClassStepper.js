@@ -58,7 +58,7 @@ export default function NewClassStepper({ toggle }) {
 
   const addAssignment = () => {
     let temp = { title: assignmentName, type };
-    if (type === "Multiple") temp.parts = parts;
+    if (type === "Rubric") temp.parts = parts;
     setAssignments([...assignments, temp]);
     setAssignmentName("");
     setParts([]);
@@ -214,11 +214,11 @@ export default function NewClassStepper({ toggle }) {
                   helperText={
                     type === "Single"
                       ? "Type 'Single' has only 1 grade"
-                      : "Type 'Multiple' can have sub-grades"
+                      : "Type 'Rubric' can have sub-grades"
                   }
                 >
                   <MenuItem value="Single">Single</MenuItem>
-                  <MenuItem value="Multiple">Multiple</MenuItem>
+                  <MenuItem value="Rubric">Rubric</MenuItem>
                 </TextField>
                 <TextField
                   value={assignmentName}
@@ -231,7 +231,7 @@ export default function NewClassStepper({ toggle }) {
                   inputRef={assignmentRef}
                 />
               </Stack>
-              {type === "Multiple" && (
+              {type === "Rubric" && (
                 <>
                   {chipList.length > 0 && (
                     <Paper elevation={6} sx={{ p: 1 }}>
@@ -283,7 +283,7 @@ export default function NewClassStepper({ toggle }) {
                       <Add />
                     </Button>
                   </Stack>
-                  {type === "Multiple" && (
+                  {type === "Rubric" && (
                     <Box component={Paper} elevation={4} p={1}>
                       <Typography color="text.secondary">
                         Add assignment categories{" "}
@@ -318,7 +318,7 @@ export default function NewClassStepper({ toggle }) {
                 onClick={addAssignment}
                 disabled={
                   assignmentName === "" ||
-                  (type === "Multiple" && parts.length === 0)
+                  (type === "Rubric" && parts.length === 0)
                 }
                 endIcon={<Add />}
               >
