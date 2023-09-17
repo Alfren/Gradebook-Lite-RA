@@ -142,7 +142,7 @@ export default function AssignmentModal({
           spacing={2}
           sx={{
             minWidth: 300,
-            backgroundColor: editId ? "#bb35" : "default",
+            backgroundColor: editId ? "#b332" : "default",
           }}
           component={Paper}
           p={1}

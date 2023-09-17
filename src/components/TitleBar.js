@@ -89,19 +89,10 @@ export default function TitleBar({ toggleTheme }) {
               color: "inherit",
               display: "flex",
             }}
-            title="Gradebook 🇦🇷 - Home"
+            title="Gradebook - Home"
           >
             <Box component="img" src={A} height={30} sx={{ mx: 1 }} />
-            <Typography variant="h5">
-              Gradebook{" "}
-              <img
-                src={AR_Flag}
-                width={20}
-                style={{ position: "relative", top: 3 }}
-                alt="AR"
-                title="Argentina (AR)"
-              />
-            </Typography>
+            <Typography variant="h5">Gradebook</Typography>
           </Link>
         </Stack>
         <Stack direction="row" spacing={2}>
