@@ -1,17 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const connection =
-  window.location.origin !== "http://localhost:3000"
-    ? "http://192.168.1.4:4000/api"
-    : "http://localhost:4000/api";
-
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl:
       process.env.NODE_ENV === "development"
-        ? connection
-        : "http://gradebook.us-east-1.elasticbeanstalk.com/api",
+        ? "http://localhost:4000/api"
+        : "http://gradebook.com/api",
   }),
   endpoints: (builder) => ({
     // ------- STUDENTS ------//
@@ -36,8 +31,8 @@ export const api = createApi({
       invalidatesTags: ["students", "classes"],
     }),
     deleteStudent: builder.mutation({
-      query: ({ id, classId }) => ({
-        url: `/students/${id}/class/${classId}`,
+      query: ({ id }) => ({
+        url: `/students/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["students", "classes"],
@@ -64,8 +59,8 @@ export const api = createApi({
       invalidatesTags: ["assignments", "classes"],
     }),
     deleteAssignment: builder.mutation({
-      query: ({ id, classId }) => ({
-        url: `/assignments/${id}/class/${classId}`,
+      query: ({ id }) => ({
+        url: `/assignments/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["assignments", "classes"],
@@ -116,8 +111,6 @@ export const api = createApi({
   }),
 });
 
-// Export hooks for usage in functional components, which are
-// auto-generated based on the defined endpoints
 export const {
   useGetStudentsQuery,
   useCreateStudentMutation,

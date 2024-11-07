@@ -1,0 +1,35 @@
+{
+    "title": "Kanban",
+    "cols": [
+        {
+            "title": "To-Do",
+            "tasks": [
+                {
+                    "text": "add profile page",
+                    "id": "o9490qch2tuec8s7q5ufmjlx"
+                },
+                {
+                    "text": "Add cookies",
+                    "id": "mgch1g9uvflhrd3zb0cqtzl5"
+                }
+            ],
+            "id": "eulqybz5pmr41lkrmwvwtf1e",
+            "color": "#fcb900"
+        },
+        {
+            "title": "Doing",
+            "tasks": [],
+            "id": "lktrzzvh0ageko2cd08q3jxy",
+            "color": "#0693e3"
+        },
+        {
+            "title": "Done",
+            "tasks": [],
+            "id": "z034cs6ucv67rtxvtjjr0bnu",
+            "color": "#00d084"
+        }
+    ],
+    "autosave": true,
+    "saveToFile": true,
+    "timestamp": 1731014624499
+}

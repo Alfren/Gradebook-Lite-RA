@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -14,7 +13,7 @@ import TitleBar from "./components/TitleBar";
 import { Home, Error, Login } from "./pages/index";
 import { blue } from "@mui/material/colors";
 
-export default function App() {
+export default function AppRouter() {
   const { permitted } = useSelector((state) => state.user);
   const [mode, setMode] = useState(false);
   const toggleTheme = () => {
@@ -51,6 +50,7 @@ export default function App() {
   const router = createBrowserRouter([
     {
       element: <TitleBar toggleTheme={toggleTheme} permitted={permitted} />,
+      errorElement: <ErrorBoundary />,
       children: permitted
         ? [
             {
@@ -63,7 +63,6 @@ export default function App() {
             },
           ]
         : [{ path: "/", element: <Login /> }],
-      errorElement: <ErrorBoundary />,
     },
   ]);
 

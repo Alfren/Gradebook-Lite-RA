@@ -1,31 +1,32 @@
-const router = require("express").Router();
-const assignmentModel = require("./assignmentModel");
-const classModel = require("../class/classModel");
+import { Router } from "express";
+import { Assignment, Class } from "../models/index.js";
 
-router.get("/", async function (req, res) {
+export const AssignmentRouter = Router();
+
+AssignmentRouter.get("/", async (req, res) => {
   try {
-    const response = await assignmentModel.find();
+    const response = await Assignment.findAll();
     res.send(response);
   } catch (error) {
     res.status(error.status || 500).send(error);
   }
 });
 
-router.get("/:teacherId", async function (req, res) {
+AssignmentRouter.get("/:teacherId", async (req, res) => {
   const { teacherId } = req.params;
   try {
-    const response = await assignmentModel.find({ teacherId });
+    const response = await Assignment.findAll({ where: { teacherId } });
     res.send(response);
   } catch (error) {
     res.status(error.status || 500).send(error);
   }
 });
 
-router.post("/", async function (req, res) {
+AssignmentRouter.post("/", async (req, res) => {
   const { body } = req;
   try {
-    const response = await assignmentModel.create(body);
-    await classModel.findByIdAndUpdate(
+    const response = await Assignment.create(body);
+    await Class.findByIdAndUpdate(
       body.classId,
       { $push: { assignments: response.id } },
       { safe: true, upsert: true, new: true }
@@ -36,26 +37,26 @@ router.post("/", async function (req, res) {
   }
 });
 
-router.patch("/:id", async function (req, res) {
+AssignmentRouter.patch("/:id", async (req, res) => {
   const {
     body,
     params: { id },
   } = req;
   try {
-    const response = await assignmentModel.findByIdAndUpdate(id, body);
+    const response = await Assignment.findByIdAndUpdate(id, body);
     res.send(response);
   } catch (error) {
     res.status(error.status || 500).send(error);
   }
 });
 
-router.delete("/:id/class/:classId", async function (req, res) {
+AssignmentRouter.delete("/:id/class/:classId", async (req, res) => {
   const {
     params: { id, classId },
   } = req;
   try {
-    const response = await assignmentModel.findByIdAndDelete(id);
-    await classModel.findByIdAndUpdate(
+    const response = await Assignment.findByIdAndDelete(id);
+    await Class.findByIdAndUpdate(
       classId,
       { $pull: { assignments: id } }
       // { safe: true, upsert: true, new: true }
@@ -65,5 +66,3 @@ router.delete("/:id/class/:classId", async function (req, res) {
     res.status(error.status || 500).send(error);
   }
 });
-
-module.exports = router;
