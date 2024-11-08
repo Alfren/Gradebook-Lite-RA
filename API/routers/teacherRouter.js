@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Teacher, Student, Class } from "../models/index.js";
+import { Teacher, Class } from "../models/index.js";
 
 export const TeacherRouter = Router();
 

@@ -1,30 +1,29 @@
-# Stage 1: Build React App
-ARG BASE_REGISTRY=registry1.dso.mil
-ARG BASE_IMAGE=ironbank/opensource/nodejs/nodejs18
-ARG BASE_TAG=18.13.0
-
-FROM ${BASE_REGISTRY}/${BASE_IMAGE}:${BASE_TAG} AS build
+FROM cgr.dev/chainguard/node:latest AS build
 
 WORKDIR /app
 
 # Copy package.json and package-lock.json
-COPY package*.json ./
+COPY --chown=node:node public ${APP_HOME}/public
+COPY --chown=node:node src ${APP_HOME}/src
+COPY --chown=node:node nginx ${APP_HOME}/nginx
+COPY --chown=node:node package.json ${APP_HOME}/package.json
+COPY --chown=node:node vite.config.js ${APP_HOME}/vite.config.js
+COPY --chown=node:node index.html ${APP_HOME}/index.html
 
 # Install dependencies
 USER root
 RUN npm install
 
-# Copy the React app source code
-COPY . .
-
 # Build the React app
 RUN npm run build
 
-# Stage 2: Serve the React app using Nginx
-FROM registry1.dso.mil/ironbank/opensource/nginx/nginx:1.23.2
+# Stage 2 - NGINX
+FROM cgr.dev/chainguard/nginx:latest-dev
 
-COPY --from=build /app/build /usr/share/nginx/html
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+WORKDIR /usr/share/nginx/html
+
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 

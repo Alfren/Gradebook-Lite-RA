@@ -6,13 +6,34 @@ const Assignment = sequelize.define("Assignment", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  dueDate: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  totalPoints: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   type: {
-    type: DataTypes.ENUM(DataTypes.STRING),
-    values: ["Single", "Group", "Part"],
-    defaultValue: "Single",
+    type: DataTypes.ENUM("Homework", "Quiz", "Exam", "Project"),
+    allowNull: false,
+  },
+  assignedDate: {
+    type: DataTypes.DATE,
+    allowNull: true,
   },
   weight: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 1,
+  },
+  extraCredit: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
 });
 

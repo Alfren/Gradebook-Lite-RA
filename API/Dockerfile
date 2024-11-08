@@ -1,26 +1,20 @@
-ARG BASE_REGISTRY=registry1.dso.mil
-ARG BASE_IMAGE=ironbank/opensource/nodejs/nodejs18
-ARG BASE_TAG=18.13.0
+FROM cgr.dev/chainguard/node:latest
 
-FROM ${BASE_REGISTRY}/${BASE_IMAGE}:${BASE_TAG}
+WORKDIR /app
 
-WORKDIR /API
+COPY --chown=node:node models /app/models
+COPY --chown=node:node routes /app/routes
+COPY --chown=node:node utils /app/utils
+COPY --chown=node:node server.js /app/
+COPY --chown=node:node package.json /app/
+COPY --chown=node:node processes.json /app/
 
-# Copy package.json and package-lock.json for the API
-COPY API/package*.json ./
-
-# Install API dependencies
-USER root
-RUN npm install
-
-# Copy the API source code
-COPY API .
-
-# Expose the internal port where the API will run
+# Install Dependencies
+RUN npm install --omit=dev
 EXPOSE 4000
 
-ENV PORT=4000
-ENV DB_CONNECTION=mongodb+srv://ArgentineTeachers:bTaxYtfI5fWOO7VZ@ar.j8vmrip.mongodb.net/gradebook-ar?retryWrites=true&w=majority
-# Run the Express.js API
-# CMD [ "node", "server.js" ]
-CMD ["npm", "run", "pm2-prod"]
+# Make Entry Point NPM
+ENTRYPOINT ["npm", "run"]
+
+# Run Script
+CMD ["pm2-prod"]
