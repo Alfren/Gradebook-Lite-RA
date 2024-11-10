@@ -56,13 +56,13 @@ export default function Home() {
   const dataGridReload = (selectedClassTitle) => {
     const TITLE = selectedClassTitle || classSelectValue;
     let FOUND = {};
-    if (TITLE && !isFetching && classes.length > 0) {
+    if (TITLE && !isFetching && classes?.length > 0) {
       FOUND = classes.find(({ title }) => title === TITLE);
       if (FOUND) setCurrentClass(FOUND);
-    } else if (TITLE == "" && !isFetching && classes.length > 0) {
+    } else if (TITLE == "" && !isFetching && classes?.length > 0) {
       setClassSelectValue(classes[0]?.title);
       setCurrentClass(classes[0]);
-    } else if (classes.length === 0) {
+    } else if (classes?.length === 0) {
       setClassSelectValue("");
       setCurrentClass({});
       setDataRows([]);
@@ -158,7 +158,7 @@ export default function Home() {
 
   const changeClass = (e) => {
     const val = e.target.value;
-    const obj = classes.find(({ title }) => title === val);
+    const obj = classes?.find(({ title }) => title === val);
     if (obj.id) {
       setCurrentClass(obj);
       setClassSelectValue(obj.title);
@@ -257,7 +257,7 @@ export default function Home() {
               <IconButton
                 color="primary"
                 onClick={toggleAssignmentModal}
-                disabled={classes.length === 0 || !currentClass}
+                disabled={classes?.length === 0 || !currentClass}
               >
                 <Description />
               </IconButton>
@@ -268,7 +268,7 @@ export default function Home() {
               <IconButton
                 color="primary"
                 onClick={toggleStudentModal}
-                disabled={classes.length === 0 || !currentClass}
+                disabled={classes?.length === 0 || !currentClass}
               >
                 <Groups />
               </IconButton>
@@ -318,9 +318,9 @@ export default function Home() {
           toolbar: CustomToolbar,
           noRowsOverlay: () => (
             <Stack height="100%" alignItems="center" justifyContent="center">
-              {classes.length > 0 && classSelectValue !== "" ? (
+              {classes?.length > 0 && classSelectValue !== "" ? (
                 "No students to display for the selected class"
-              ) : classes.length === 0 && classSelectValue === "" ? (
+              ) : classes?.length === 0 && classSelectValue === "" ? (
                 <Stack className="noPrint">
                   <Typography>Create your first class!</Typography>
                   <Button

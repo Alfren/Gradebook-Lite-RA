@@ -5,6 +5,10 @@
             "title": "To-Do",
             "tasks": [
                 {
+                    "text": "Add weights to class creation drawer",
+                    "id": "iw70zxlpb7dhgrowxh10gbmz"
+                },
+                {
                     "text": "add profile page",
                     "id": "o9490qch2tuec8s7q5ufmjlx"
                 },
@@ -31,5 +35,5 @@
     ],
     "autosave": true,
     "saveToFile": true,
-    "timestamp": 1731014624499
+    "timestamp": 1731183420397
 }

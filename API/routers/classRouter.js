@@ -1,14 +1,20 @@
 import { Router } from "express";
-import { Class, Student, Assignment, Teacher } from "../models/index.js";
+import {
+  Class,
+  Student,
+  Assignment,
+  Teacher,
+  AssignmentGroup,
+} from "../models/index.js";
 
 export const ClassRouter = Router();
 
 ClassRouter.get("/", async function (req, res) {
   try {
-    const response = await Class.find();
+    const response = await Class.findAll();
     res.send(response);
   } catch (error) {
-    res.status(error.status || 500).send(error);
+    res.status(500).send(error);
   }
 });
 
@@ -19,71 +25,49 @@ ClassRouter.get("/:teacherId", async function (req, res) {
       where: { teacherId },
       include: [
         { model: Student, as: "students" },
-        { model: Assignment, as: "assignments" },
+        {
+          model: AssignmentGroup,
+          as: "assignmentGroups",
+          include: [{ model: Assignment, as: "assignments" }],
+        },
       ],
     });
     res.send(response);
   } catch (error) {
-    res.status(error.status || 500).send(error);
+    console.error(error);
+    res.status(500).send(error);
   }
 });
 
 ClassRouter.post("/", async function (req, res) {
-  const { title, teacherId, students, assignments } = req.body;
+  const { title, teacherId } = req.body;
   try {
-    // Create class, assignments and students related to the class
-    const response = await Class.create(
-      { title, teacherId, students, assignments },
-      {
-        include: [
-          { model: Student, as: "students" },
-          { model: Assignment, as: "assignments" },
-        ],
-      }
-    );
+    const response = await Class.create({ title, teacherId });
     res.send(response);
   } catch (error) {
     console.error(error);
-    res.status(error.status || 500).send(error);
+    res.status(500).send(error);
   }
 });
 
 ClassRouter.patch("/:id", async function (req, res) {
-  const {
-    body,
-    params: { id },
-  } = req;
+  const { id } = req.params;
   try {
-    const response = await Class.findByIdAndUpdate(id, body);
+    const response = await Class.update(req.body, { where: { id } });
     res.send(response);
   } catch (error) {
-    res.status(error.status || 500).send(error);
+    console.error(error);
+    res.status(500).send(error);
   }
 });
 
 ClassRouter.delete("/:id/:teacherId", async function (req, res) {
-  const {
-    params: { id, teacherId },
-  } = req;
+  const { id, teacherId } = req.params;
   try {
-    const response = await Class.findByIdAndDelete(id);
-    if (response?.students?.length > 0) {
-      await Promise.all([
-        ...response.students.map(
-          async (id) => await Student.findByIdAndDelete(id)
-        ),
-      ]);
-    }
-    if (response?.assignments?.length > 0) {
-      await Promise.all([
-        ...response.assignments.map(
-          async (id) => await Assignment.findByIdAndDelete(id)
-        ),
-      ]);
-    }
-    await Teacher.findByIdAndUpdate(teacherId, { $pull: { classes: id } });
+    const response = await Class.destroy({ where: { id, teacherId } });
     res.send(response);
   } catch (error) {
-    res.status(error.status || 500).send(error);
+    console.error(error);
+    res.status(500).send(error);
   }
 });

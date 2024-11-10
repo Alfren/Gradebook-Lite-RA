@@ -8,6 +8,7 @@ TeacherRouter.get("/", async function (req, res) {
     const response = await Teacher.find();
     res.send(response);
   } catch (error) {
+    console.error(error);
     res.status(500).send(error);
   }
 });
@@ -17,10 +18,11 @@ TeacherRouter.get("/:username", async function (req, res) {
   try {
     const response = await Teacher.findOne({
       where: { username },
-      include: [{ model: Class }],
+      include: [{ model: Class, as: "classes" }],
     });
     res.send(response);
   } catch (error) {
+    console.error(error);
     res.status(500).send(error);
   }
 });
@@ -31,6 +33,7 @@ TeacherRouter.post("/", async function (req, res) {
     const response = await Teacher.create(body);
     res.send(response);
   } catch (error) {
+    console.error(error);
     res.status(500).send(error);
   }
 });
@@ -52,6 +55,7 @@ TeacherRouter.delete("/:id", async function (req, res) {
     const response = await Teacher.destroy({ where: { id } });
     res.send(response);
   } catch (error) {
+    console.error(error);
     res.status(500).send(error);
   }
 });
@@ -62,6 +66,7 @@ TeacherRouter.delete("/complete/:teacherId", async function (req, res) {
     await Class.destroy({ where: { teacherId } });
     res.send();
   } catch (error) {
+    console.error(error);
     res.status(500).send(error);
   }
 });

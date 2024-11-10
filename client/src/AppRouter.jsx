@@ -36,6 +36,30 @@ export default function AppRouter() {
       mode: mode ? "dark" : "light",
       background: { default: mode ? blue[900] : blue[400] },
     },
+    components: {
+      MuiButton: {
+        defaultProps: {
+          variant: "contained",
+        },
+      },
+      MuiTextField: {
+        defaultProps: {
+          variant: "outlined",
+          size: "small",
+        },
+      },
+      MuiSelect: {
+        defaultProps: {
+          size: "small",
+        },
+      },
+      MuiTooltip: {
+        defaultProps: {
+          arrow: true,
+          disableInteractive: true,
+        },
+      },
+    },
   });
 
   function SnackbarCloseButton({ snackbarKey }) {

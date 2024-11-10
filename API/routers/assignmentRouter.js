@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Assignment, Class } from "../models/index.js";
+import { Assignment, AssignmentGroup, Class } from "../models/index.js";
 
 export const AssignmentRouter = Router();
 
@@ -8,7 +8,7 @@ AssignmentRouter.get("/", async (req, res) => {
     const response = await Assignment.findAll();
     res.send(response);
   } catch (error) {
-    res.status(error.status || 500).send(error);
+    res.status(500).send(error);
   }
 });
 
@@ -18,7 +18,7 @@ AssignmentRouter.get("/:teacherId", async (req, res) => {
     const response = await Assignment.findAll({ where: { teacherId } });
     res.send(response);
   } catch (error) {
-    res.status(error.status || 500).send(error);
+    res.status(500).send(error);
   }
 });
 
@@ -26,14 +26,9 @@ AssignmentRouter.post("/", async (req, res) => {
   const { body } = req;
   try {
     const response = await Assignment.create(body);
-    await Class.findByIdAndUpdate(
-      body.classId,
-      { $push: { assignments: response.id } },
-      { safe: true, upsert: true, new: true }
-    );
     res.send(response);
   } catch (error) {
-    res.status(error.status || 500).send(error);
+    res.status(500).send(error);
   }
 });
 
@@ -43,26 +38,52 @@ AssignmentRouter.patch("/:id", async (req, res) => {
     params: { id },
   } = req;
   try {
-    const response = await Assignment.findByIdAndUpdate(id, body);
+    const response = await Assignment.update(body, { where: { id } });
     res.send(response);
   } catch (error) {
-    res.status(error.status || 500).send(error);
+    res.status(500).send(error);
   }
 });
 
-AssignmentRouter.delete("/:id/class/:classId", async (req, res) => {
-  const {
-    params: { id, classId },
-  } = req;
+AssignmentRouter.delete("/:id", async (req, res) => {
+  const { id } = req.params;
   try {
-    const response = await Assignment.findByIdAndDelete(id);
-    await Class.findByIdAndUpdate(
-      classId,
-      { $pull: { assignments: id } }
-      // { safe: true, upsert: true, new: true }
-    );
+    const response = await Assignment.destroy({ where: { id } });
     res.send(response);
   } catch (error) {
-    res.status(error.status || 500).send(error);
+    res.status(500).send(error);
+  }
+});
+
+AssignmentRouter.post("/group", async (req, res) => {
+  const { body } = req;
+  try {
+    const response = await AssignmentGroup.create(body);
+    res.send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+AssignmentRouter.patch("/group/:id", async (req, res) => {
+  const {
+    body,
+    params: { id },
+  } = req;
+  try {
+    const response = await AssignmentGroup.update(body, { where: { id } });
+    res.send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+AssignmentRouter.delete("/group/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await AssignmentGroup.destroy({ where: { id } });
+    res.send(response);
+  } catch (error) {
+    res.status(500).send(error);
   }
 });

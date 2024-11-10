@@ -78,6 +78,14 @@ export const api = createApi({
       }),
       invalidatesTags: ["teacher"],
     }),
+    updateTeacher: builder.mutation({
+      query: (body) => ({
+        url: `/teachers/${body.id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["teacher"],
+    }),
     deleteAccount: builder.mutation({
       query: (teacherId) => ({
         url: `/teachers/complete/${teacherId}`,
@@ -101,12 +109,41 @@ export const api = createApi({
       }),
       invalidatesTags: ["classes"],
     }),
+    updateClass: builder.mutation({
+      query: (body) => ({
+        url: `/classes/${body.id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["classes"],
+    }),
     deleteClass: builder.mutation({
       query: ({ id, teacherId }) => ({
         url: `/classes/${id}/${teacherId}`,
         method: "DELETE",
       }),
       invalidatesTags: ["classes"],
+    }),
+    // ------- ASSIGNMENT GROUP ------//
+    createAssignmentGroup: builder.mutation({
+      query: (body) => ({
+        url: `/assignments/group`,
+        method: "POST",
+        body,
+      }),
+    }),
+    updateAssignmentGroup: builder.mutation({
+      query: (body) => ({
+        url: `/assignments/group/${body.id}`,
+        method: "PATCH",
+        body,
+      }),
+    }),
+    deleteAssignmentGroup: builder.mutation({
+      query: ({ id }) => ({
+        url: `/assignments/group/${id}`,
+        method: "DELETE",
+      }),
     }),
   }),
 });
@@ -116,14 +153,23 @@ export const {
   useCreateStudentMutation,
   useUpdateStudentMutation,
   useDeleteStudentMutation,
+  // ------- ASSIGNMENTS ------//
   useGetAssignmentsQuery,
   useCreateAssignmentMutation,
   useUpdateAssignmentMutation,
   useDeleteAssignmentMutation,
+  // ------- TEACHER ------//
   useGetTeacherMutation,
   useCreateTeacherMutation,
+  useUpdateTeacherMutation,
   useDeleteAccountMutation,
+  // ------- CLASS ------//
   useGetTeacherClassesQuery,
   useCreateClassMutation,
+  useUpdateClassMutation,
   useDeleteClassMutation,
+  // ------- ASSIGNMENT GROUP ------//
+  useCreateAssignmentGroupMutation,
+  useUpdateAssignmentGroupMutation,
+  useDeleteAssignmentGroupMutation,
 } = api;

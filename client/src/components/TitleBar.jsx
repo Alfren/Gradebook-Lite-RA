@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Outlet } from "react-router";
 import {
   Backdrop,
-  Box,
   CircularProgress,
   IconButton,
   ListItemIcon,
@@ -19,8 +18,6 @@ import {
   Logout,
   MoreVert,
 } from "@mui/icons-material";
-import AR_Flag from "../images/AR-flag.svg";
-import A from "../images/A+.png";
 import ConfirmDialog from "./ConfirmDialog";
 import { Link } from "react-router-dom";
 import { logout } from "../store/userSlice";
@@ -76,6 +73,7 @@ export default function TitleBar({ toggleTheme }) {
         direction="row"
         justifyContent="space-between"
         alignItems="center"
+        sx={{ borderRadius: "0 0 8px 8px" }}
         spacing={2}
         p={1}
         mb={3}
@@ -89,10 +87,9 @@ export default function TitleBar({ toggleTheme }) {
               color: "inherit",
               display: "flex",
             }}
-            title="Gradebook - Home"
+            title="Grade Genie - Home"
           >
-            <Box component="img" src={A} height={30} sx={{ mx: 1 }} />
-            <Typography variant="h5">Gradebook</Typography>
+            <Typography variant="h5">Grade Genie</Typography>
           </Link>
         </Stack>
         <Stack direction="row" spacing={2}>

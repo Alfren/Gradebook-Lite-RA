@@ -16,14 +16,28 @@ Teacher.hasMany(Class, {
   as: "classes",
 });
 
-AssignmentGroup.belongsTo(Class, { foreignKey: "classId" });
+Class.hasMany(AssignmentGroup, {
+  foreignKey: "classId",
+  onDelete: "CASCADE",
+  as: "assignmentGroups",
+});
+
+AssignmentGroup.belongsTo(Class, { foreignKey: "classId", as: "class" });
+AssignmentGroup.hasMany(Assignment, {
+  foreignKey: "assignmentGroupId",
+  as: "assignments",
+});
+
 Assignment.hasMany(Grade, {
   foreignKey: "assignmentId",
   onDelete: "CASCADE",
   as: "grades",
 });
 
-Assignment.belongsTo(AssignmentGroup, { foreignKey: "assignmentGroupId" });
+Assignment.belongsTo(AssignmentGroup, {
+  foreignKey: "assignmentGroupId",
+  as: "assignmentGroup",
+});
 
 Student.hasMany(Grade, {
   foreignKey: "studentId",
@@ -40,8 +54,8 @@ await sequelize.authenticate().then(async () => {
   // create schema private if not exists
   await sequelize.query("CREATE SCHEMA IF NOT EXISTS private");
   // Sync all models at once
-  const force = true,
-    alter = false;
+  const force = false;
+  const alter = true;
 
   await sequelize
     .sync({ force, alter })
